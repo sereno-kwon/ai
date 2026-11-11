@@ -44,7 +44,7 @@ var SHEETS = {
   '상단이미지': ['이미지 주소', '제목', '링크', '노출', '출처', '동기화'],
   '사이즈가이드': ['EU', '발 길이 최소(mm)', '발 길이 최대(mm)', '신발 길이(mm)', 'UK', 'US 남성', '동기화'],
   '슈즈가이드': ['데이터(JSON)', '동기화'],
-  '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화'],
+  '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화', '검색키'],
   '안내': ['항목', '내용'],
   '상담로그': ['시각', '세션', '구분', '턴', '고객 메시지', 'AI 답변', '추천 모델', '입력 토큰', '출력 토큰', '캐시 토큰']
 };
@@ -124,7 +124,8 @@ function buildSystem_(mode, messages) {
     '- 자전거: 고객의 용도, 주행 환경, 체형, 예산, 취향을 파악해 루비워크샵이 취급하는 모델 중 알맞은 모델과 사이즈 방향을 제안합니다.',
     '- 슈즈: 발 길이와 발볼, 용도, 페달·클릿 규격을 파악해 취급 슈즈의 모델과 사이즈를 안내합니다.',
     '- 부품: 취급 부품의 스펙(규격, 무게, 소재, 옵션)을 알려 주고, 고객 자전거와 맞는지 확인하는 데 필요한 정보를 함께 정리합니다.',
-    '- 브랜드 맞춤 제작: 바스티온처럼 한 대씩 주문 제작하는 브랜드는 [브랜드 사이트] 자료를 바탕으로 모델, 제작 과정, 기간, 시작 가격을 안내하고 쇼룸 방문 상담으로 이어 줍니다.',
+    '- 브랜드 맞춤 제작: 바스티온처럼 한 대씩 주문 제작하는 브랜드는 [브랜드 사이트 상세]를 바탕으로 모델, 제작 과정, 기간, 시작 가격을 안내하고 쇼룸 방문 상담으로 이어 줍니다.',
+    '- 브랜드 이야기: 고객이 브랜드의 역사, 철학, 공법, 라인업, 다른 브랜드와의 차이를 물으면 [브랜드 사이트 상세]로 답하고, 더 읽을 수 있게 해당 브랜드 사이트 주소를 알려 줍니다.',
     '- 최종 사이즈와 빌드, 부품 호환은 쇼룸 피팅·시착과 상담원 확인으로 확정된다는 점을 자연스럽게 안내합니다.',
     '- 상담이 무르익으면 "채널톡으로 상담 이어가기" 버튼으로 상담원과 이어서 이야기할 수 있다고 안내합니다.',
     '',
@@ -164,7 +165,9 @@ function buildSystem_(mode, messages) {
     '- 규격 용어(BB, OLD, 스루액슬 등)의 일반적인 뜻은 설명해도 되지만, 특정 제품의 수치는 자료에서만 가져옵니다.',
     '- 재고, 할인, 정확한 견적, 입고일은 확답하지 말고 상담원 확인으로 넘깁니다.',
     '- 출고사례는 "비슷한 체형·용도의 고객 사례"로만 언급하고, 개인을 특정할 수 있는 표현은 쓰지 않습니다.',
-    '- [브랜드 사이트] 내용은 각 브랜드 코리아 사이트(예: bastioncycles.co.kr)에서 가져온 것입니다. 브랜드 모델, 공법, 제작 과정, 시작 가격은 이 자료에 있는 대로만 말하고, "부터"로 표기된 가격은 옵션에 따라 달라진다고 덧붙입니다.',
+    '- [브랜드 사이트 목록]과 [브랜드 사이트 상세]는 루비컴퍼니가 운영하는 브랜드 코리아 사이트(bastioncycles.co.kr, crustbikes.co.kr, mks.rubiworkshop.com 등)에서 가져온 것입니다. 브랜드 역사, 모델, 공법, 제작 과정, 시작 가격은 이 자료에 있는 대로만 말하고, "부터"로 표기된 가격은 옵션에 따라 달라진다고 덧붙입니다.',
+    '- [브랜드 사이트 상세]는 대화에 맞춰 자동으로 고른 부분입니다. 목록에는 있는데 상세가 없는 내용을 물으면 지어내지 말고 그 브랜드 사이트 주소를 안내합니다.',
+    '- 제품 스펙과 판매가는 [관련 상품 상세](상품 페이지)가 브랜드 사이트보다 우선입니다. 둘이 다르면 상품 페이지를 따릅니다.',
     '- 쇼룸 주소, 운영시간, 연락처는 [안내] 탭이 기준입니다. 브랜드 사이트의 시간과 다르면 [안내] 탭을 따릅니다.',
     '- 다른 숍이나 브랜드를 깎아내리지 않습니다.',
     '- 부상, 통증, 의료 관련 질문에는 진단하지 말고 전문의 상담을 권합니다.',
@@ -220,6 +223,8 @@ function buildSystem_(mode, messages) {
     if (shoeMode_(messages)) blocks.push({ type: 'text', text: '[상담 모드] 지금 대화는 슈즈 상담입니다. 자전거 추천 질문은 하지 말고 [슈즈 상담 우선]과 [QUOC 슈즈 가이드] 순서대로 진행하세요. 이미 답한 항목은 다시 묻지 않습니다.' });
     var sizeCalc = quocSizeBlock_(messages);
     if (sizeCalc) blocks.push({ type: 'text', text: '[QUOC 사이즈 계산 결과]\n' + sizeCalc });
+    var brandDetail = relatedBrandSections_(messages);
+    if (brandDetail) blocks.push({ type: 'text', text: '[브랜드 사이트 상세]\n' + brandDetail });
     var related = relatedProducts_(messages);
     if (related) blocks.push({ type: 'text', text: '[관련 상품 상세]\n' + related });
   }
@@ -431,9 +436,7 @@ function setup() {
   });
 
   var sites = ss.getSheetByName('브랜드사이트');
-  if (sites.getLastRow() === 1) {
-    sites.getRange(2, 1, 1, 3).setValues([['바스티온 사이클', 'https://bastioncycles.co.kr/', 'Y']]);
-  }
+  ensureBrandSites_(sites);
   var guide = ss.getSheetByName('안내');
   if (guide.getLastRow() === 1) {
     guide.getRange(2, 1, 7, 2).setValues([
@@ -851,18 +854,58 @@ function decodeEntities_(s) {
 //   <section id="..."> 단위로 글을 뽑아 '브랜드사이트 내용' 탭에 저장합니다.
 //   이 내용은 [브랜드 사이트]로 AI 자료에 항상 들어갑니다.
 // ════════════════════════════════════════════════════════════════
-var BRAND_SKIP_SECTIONS = /^(gallery|lb|menu|dots|cue|bars|hd)$/i;
-var BRAND_SECTION_CHARS = 6000;
+var BRAND_SKIP_SECTIONS = /^(gallery|lb|menu|dots|cue|bars|hd|showroom|strip|press)$/i;
+var BRAND_SECTION_CHARS = 9000;
+var BRAND_DETAIL = { MAX_BRANDS: 2, BRAND_CHARS: 12000, TOTAL_CHARS: 16000, TOP_SECTIONS: 3 };
+
+// 루비컴퍼니가 만든 브랜드 코리아 사이트. [브랜드, 주소, 고객이 부르는 이름(정규식)]
+// 시트에 없는 사이트는 동기화 때 자동으로 추가합니다. 빼고 싶으면 행을 지우지 말고 노출에 N을 넣습니다.
+var BRAND_SITES = [
+  ['바스티온 사이클', 'https://bastioncycles.co.kr/', '바스티온|bastion'],
+  ['크러스트 바이크', 'https://crustbikes.co.kr/', '크러스트|crust'],
+  ['팔리 사이클', 'https://parleecycles.co.kr/', '팔리|parlee'],
+  ['츠바사 바이시클', 'https://tsubasabicycles.co.kr/', '츠바사|tsubasa'],
+  ['몰튼 바이시클', 'https://moultonbicycles.co.kr/', '몰튼|moulton'],
+  ['몰튼 SST 와이드', 'https://sst.rubiworkshop.com/', '\\bsst\\b|에스에스티'],
+  ['설리', 'https://surly.rubiworkshop.com/', '설리|surly'],
+  ['고키소', 'https://gokiso.rubiworkshop.com/', '고키소|gokiso'],
+  ['그로우택', 'https://growtac.rubiworkshop.com/', '그로우택|grow\\s*tac'],
+  ['QUOC', 'https://quoc.rubiworkshop.com/', 'quoc|쿽'],
+  ['THM', 'https://thm.rubiworkshop.com/', '\\bthm\\b|티에이치엠'],
+  ['폴 컴포넌트', 'https://paul.rubiworkshop.com/', '폴\\s*컴포넌트|paul\\s*comp|\\bpaul\\b'],
+  ['화이트 인더스트리', 'https://whiteind.rubiworkshop.com/', '화이트\\s*인더스트리|white\\s*ind'],
+  ['울프투스', 'https://wolftooth.rubiworkshop.com/', '울프\\s*투스|wolf\\s*tooth'],
+  ['MKS', 'https://mks.rubiworkshop.com/', '\\bmks\\b|엠케이에스|미카시마'],
+  ['카본티', 'https://carbonti.rubiworkshop.com/', '카본\\s*티|carbon[\\s-]*ti\\b'],
+  ['크리스킹', 'https://chrisking.rubiworkshop.com/', '크리스\\s*킹|chris\\s*king'],
+  ['니센', 'https://nissen.rubiworkshop.com/', '니센|nissen'],
+  ['벨로시티', 'https://velocity.rubiworkshop.com/', '벨로시티|velocity'],
+  ['스퍼사이클', 'https://spurcycle.rubiworkshop.com/', '스퍼\\s*사이클|spurcycle']
+];
+
+function siteHost_(url) { return String(url || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[\/?#].*$/, '').toLowerCase(); }
+
+// 시트에 없는 BRAND_SITES 사이트를 추가합니다(주소의 도메인 기준).
+function ensureBrandSites_(list) {
+  var have = {};
+  if (list.getLastRow() > 1) {
+    list.getRange(2, 2, list.getLastRow() - 1, 1).getDisplayValues().forEach(function (r) { have[siteHost_(r[0])] = 1; });
+  }
+  var add = BRAND_SITES.filter(function (b) { return !have[siteHost_(b[1])]; })
+                       .map(function (b) { return [b[0], b[1], 'Y', '']; });
+  if (add.length) list.getRange(list.getLastRow() + 1, 1, add.length, 4).setValues(add);
+}
 
 function syncBrandSites() {
   var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
   var list = ss.getSheetByName('브랜드사이트');
   var out = ss.getSheetByName('브랜드사이트 내용') || ss.insertSheet('브랜드사이트 내용');
-  if (out.getLastRow() === 0) {
-    out.getRange(1, 1, 1, SHEETS['브랜드사이트 내용'].length).setValues([SHEETS['브랜드사이트 내용']]).setFontWeight('bold');
-    out.setFrozenRows(1);
-  }
-  if (!list || list.getLastRow() < 2) return;
+  var head = SHEETS['브랜드사이트 내용'];
+  out.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold');
+  out.setFrozenRows(1);
+  if (!list) return;
+  ensureBrandSites_(list);
+  if (list.getLastRow() < 2) return;
 
   var sites = list.getRange(2, 1, list.getLastRow() - 1, 3).getDisplayValues();
   var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
@@ -870,48 +913,227 @@ function syncBrandSites() {
   sites.forEach(function (site, i) {
     var brand = String(site[0]).trim(), url = String(site[1]).trim();
     if (!brand || !/^https:\/\//.test(url) || String(site[2]).trim().toUpperCase() === 'N') return;
-    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
-    if (resp.getResponseCode() !== 200) { console.warn(brand + ' ' + resp.getResponseCode()); keep[brand] = true; return; }
-    parseBrandSite_(resp.getContentText()).forEach(function (sec) {
-      rows.push([brand, sec.id, sec.text, url.replace(/#.*$/, '') + '#' + sec.id, stamp]);
+    var html = '';
+    try {
+      var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
+      if (resp.getResponseCode() === 200) html = resp.getContentText();
+      else console.warn(brand + ' ' + resp.getResponseCode());
+    } catch (err) { console.warn(brand + ' ' + err); }
+    if (!html) { keep[brand] = true; return; }
+    var base = url.replace(/#.*$/, '');
+    var secs = parseBrandSite_(html);
+    var title = secs.length && secs[0].id === 'about' ? secs[0].text.split('\n')[0] : '';
+    secs.forEach(function (sec) {
+      rows.push([brand, sec.id, sec.text, base + (sec.id === 'about' ? '' : '#' + sec.id), stamp,
+                 brandSectionKey_(brand, title, sec)]);
     });
     list.getRange(i + 2, 4).setValue(stamp);
   });
 
   // 실패한 사이트(keep)는 예전 내용을 그대로 두고, 나머지는 새 내용으로 바꿉니다.
-  var old = out.getLastRow() > 1 ? out.getRange(2, 1, out.getLastRow() - 1, 5).getDisplayValues() : [];
+  var n = head.length;
+  var old = out.getLastRow() > 1 ? out.getRange(2, 1, out.getLastRow() - 1, n).getDisplayValues() : [];
   var merged = old.filter(function (r) { return keep[r[0]]; }).concat(rows);
-  if (out.getLastRow() > 1) out.getRange(2, 1, out.getLastRow() - 1, 5).clearContent();
-  if (merged.length) out.getRange(2, 1, merged.length, 5).setValues(merged);
+  if (out.getLastRow() > 1) out.getRange(2, 1, out.getLastRow() - 1, n).clearContent();
+  if (merged.length) out.getRange(2, 1, merged.length, n).setValues(merged);
   clearCache();
 }
 
+// 브랜드 사이트 HTML → [{id, text}]
+//   맨 앞은 사이트 설명(about). 이어서 최상위 <section>마다 하나씩, 안쪽 section은 바깥에 포함합니다.
+//   id가 없는 section은 class 첫 단어로 부릅니다.
 function parseBrandSite_(html) {
-  var body = String(html).replace(/<(script|style|noscript|svg)[\s\S]*?<\/\1>/gi, '');
-  var secs = [], m, re = /<section\b[^>]*\bid=["']([^"']+)["'][^>]*>([\s\S]*?)<\/section>/gi;
-  while ((m = re.exec(body))) {
-    if (BRAND_SKIP_SECTIONS.test(m[1])) continue;
-    var text = htmlToText_(m[2]);
-    if (text.length > 30) secs.push({ id: m[1], text: text.slice(0, BRAND_SECTION_CHARS) });
+  var body = String(html).replace(/<!--[\s\S]*?-->/g, '').replace(/<(script|style|noscript|svg|template)\b[\s\S]*?<\/\1>/gi, '');
+  var secs = [];
+  var desc = (String(html).match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i) || [])[1] ||
+             (String(html).match(/<meta\s+property=["']og:description["']\s+content=["']([^"']*)["']/i) || [])[1] || '';
+  var title = (String(html).match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+  if (desc || title) secs.push({ id: 'about', text: decodeEntities_((title ? title.trim() + '\n' : '') + desc.trim()) });
+
+  var tagRe = /<(\/?)section\b([^>]*)>/gi, m, depth = 0, open = null, used = {}, idx = 0;
+  while ((m = tagRe.exec(body))) {
+    if (!m[1]) {
+      if (depth === 0) open = { attrs: m[2], start: tagRe.lastIndex };
+      depth++;
+    } else if (depth > 0) {
+      depth--;
+      if (depth === 0 && open) {
+        idx++;
+        var a = open.attrs;
+        var id = (a.match(/\bid=["']([^"']+)["']/i) || [])[1] ||
+                 ((a.match(/\bclass=["']([^"']+)["']/i) || [])[1] || '').split(/\s+/)[0] || ('section' + idx);
+        if (!BRAND_SKIP_SECTIONS.test(id)) {
+          var text = htmlToText_(body.slice(open.start, m.index));
+          if (text.length > 30) {
+            var key = id; if (used[key]) key = id + '-' + idx; used[key] = 1;
+            secs.push({ id: key, text: text.slice(0, BRAND_SECTION_CHARS) });
+          }
+        }
+        open = null;
+      }
+    }
   }
-  if (!secs.length) {
+  if (secs.length <= 1) {
     var t = htmlToText_((body.match(/<body[^>]*>([\s\S]*)<\/body>/i) || [])[1] || body);
     if (t) secs.push({ id: 'page', text: t.slice(0, BRAND_SECTION_CHARS * 2) });
   }
   return secs;
 }
 
+// 섹션 id(영문)를 고객이 쓰는 한글 낱말로 풀어 검색에 보탭니다.
+var BRAND_SECTION_WORDS = {
+  hubs: '허브', hub: '허브', wheel: '휠 허브', wheels: '휠', chainring: '체인링', rotor: '로터 디스크',
+  frame: '프레임', headsets: '헤드셋', bb: '비비 바텀브래킷', brakes: '브레이크', brake: '브레이크',
+  levers: '브레이크 레버', lever: '브레이크 레버', cockpit: '핸들바 스템 시트포스트', cranks: '크랭크',
+  drivetrain: '구동계 체인링', tools: '공구', mounts: '마운트 거치대', deepv: '림 휠', road: '로드 림 휠',
+  touring: '투어링 림 휠', wide: '와이드 림 휠', sp31: '케이블', outer: '아우터 케이블', vintage: '빈티지 케이블',
+  bell: '벨', compact: '벨', mirror: '미러', tool: '공구', size: '사이즈', guide: '고르는 법 가이드',
+  story: '역사 이야기', history: '역사 이야기', brand: '브랜드 소개 철학', range: '라인업 제품군 종류',
+  fit: '호환 장착 규격', colors: '색상 컬러', colour: '색상 컬러', parts: '부품', service: '정비 서비스',
+  models: '모델 라인업', process: '제작 과정 기간 순서', archetype: '모델 종류', bespoke: '맞춤 제작',
+  paintlab: '도장 페인트 컬러', dealers: '판매처', specs: '스펙 사양', builds: '빌드 구성 가격',
+  design: '디자인 설계', ride: '승차감 주행', features: '특징 서스펜션', bikes: '모델 라인업', buy: '구매 상담',
+  origin: '빌더 시작', crow: '모델', artwork: '아트워크 도장', concept: '콘셉트'
+};
+
+// 섹션 검색키: 브랜드·사이트 제목·섹션 낱말·첫머리 글자쌍 | 본문 글자쌍 | 영문·숫자 토큰 | (빈칸)
+function brandSectionKey_(brand, title, sec) {
+  var id = String(sec.id).replace(/-\d+$/, '').toLowerCase();
+  var head = brand + ' ' + title + ' ' + (BRAND_SECTION_WORDS[id] || '') + ' ' + sec.text.slice(0, 300);
+  return normText_(head) + ' | ' + normText_(sec.text.slice(0, 4000)) + ' | ' +
+         uniq_(specTokens_(brand + ' ' + sec.text.slice(0, 4000))).join(' ') + ' | ' + (BRAND_SECTION_WORDS[id] || '');
+}
+
+// 브랜드 사이트 섹션 순위. 상품보다 글이 길어서 본문은 등장 횟수까지 봅니다.
+//   검색키 = 첫머리 글자쌍 | 본문 글자쌍 | 영문·숫자 토큰 | 섹션 낱말
+var SECTION_STOP = /^(추천|천해|해주|주세|세요|있나|나요|있어|어요|싶어|려고|고요|좋은|어떤|떤게|제일|중에|찾고|고있|는데|해요|인가|가요|뭐예|예요|이랑|하고|그리|리고|입니|니다|합니|으면|면서|궁금|금해|까요|할까|할지|알려|려주|자전|전거|하는|으로|에서|정도|얼마|마나|좀더|하나|나만|같은|같이|싶은|바꾸|꾸려|교체|체하|하려|타고|타는)$/;
+function sectionRank_(query, docs, topN) {
+  var words = String(query || '').toLowerCase().split(/\s+/).map(function (w) {
+    w = normText_(w);
+    if (w.length > 2) w = w.replace(/(이랑|으로|에서|하고|까지|부터|처럼|이나|용으로|용|을|를|이|가|은|는|도|만|로|랑|와|과|의|에)$/, '');
+    return w;
+  }).filter(Boolean);
+  var qg = {}, qw = {};
+  words.forEach(function (w) {
+    if (/^[가-힣]+$/.test(w)) qw[w] = 1;
+    for (var i = 0; i < w.length - 1; i++) { var g = w.substr(i, 2); if (!SECTION_STOP.test(g)) qg[g] = 1; }
+  });
+  var qt = {}; specTokens_(query).forEach(function (t) { if (!/^\d+$/.test(t)) qt[t] = 1; });
+  if (!Object.keys(qg).length && !Object.keys(qt).length && !Object.keys(qw).length) return [];
+
+  var parsed = docs.map(function (d) {
+    var p = String(d.key).split(' | ');
+    var toks = {}; (p[2] || '').split(' ').forEach(function (t) { if (t) toks[t] = 1; });
+    var sw = {}; (p[3] || '').split(' ').forEach(function (t) { if (t) sw[t] = 1; });
+    return { row: d.row, head: p[0] || '', body: p[1] || '', toks: toks, sw: sw };
+  });
+  var N = parsed.length, df = {};
+  parsed.forEach(function (d) {
+    Object.keys(qg).forEach(function (g) { if (d.head.indexOf(g) >= 0 || d.body.indexOf(g) >= 0) df[g] = (df[g] || 0) + 1; });
+    Object.keys(qt).forEach(function (t) { if (d.toks[t]) df['t:' + t] = (df['t:' + t] || 0) + 1; });
+  });
+  var idf = function (n) { return Math.log((N + 1) / (1 + (n || 0))); };
+  parsed.forEach(function (d) {
+    var s = 0;
+    Object.keys(qg).forEach(function (g) {
+      var w = idf(df[g]);
+      if (d.head.indexOf(g) >= 0) s += 2.5 * w;
+      var tf = 0, at = d.body.indexOf(g);
+      while (at >= 0 && tf < 6) { tf++; at = d.body.indexOf(g, at + 2); }
+      if (tf) s += 2 * w * tf / (tf + 1.5);
+    });
+    Object.keys(qt).forEach(function (t) { if (d.toks[t]) s += 3 * idf(df['t:' + t]); });
+    Object.keys(qw).forEach(function (w) { if (d.sw[w]) s += 12; });
+    d.score = s;
+  });
+  parsed.sort(function (a, b) { return b.score - a.score; });
+  var best = parsed.length ? parsed[0].score : 0;
+  if (best < 12) return [];
+  return parsed.filter(function (d) { return d.score >= best * 0.5; }).slice(0, topN);
+}
+
+function brandAliasRe_(brand) {
+  for (var i = 0; i < BRAND_SITES.length; i++) {
+    if (BRAND_SITES[i][0] === brand) return new RegExp(BRAND_SITES[i][2], 'i');
+  }
+  var words = String(brand).split(/\s+/).filter(function (w) { return w.length >= 2; })
+                           .map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+  return words.length ? new RegExp(words.join('|'), 'i') : null;
+}
+
+// 항상 들어가는 짧은 목록: 브랜드마다 한 줄(주소, 설명, 섹션 이름).
 function brandSiteKnowledge_(ss) {
   var sh = ss.getSheetByName('브랜드사이트 내용');
   if (!sh || sh.getLastRow() < 2) return '';
   var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getDisplayValues();
-  var byBrand = {};
+  var by = {}, order = [];
   rows.forEach(function (r) {
-    if (!r[0] || !r[2]) return;
-    (byBrand[r[0]] = byBrand[r[0]] || []).push('### ' + r[1] + ' (' + r[3] + ')\n' + r[2]);
+    if (!r[0]) return;
+    if (!by[r[0]]) { by[r[0]] = { url: r[3].replace(/#.*$/, ''), about: '', secs: [] }; order.push(r[0]); }
+    if (r[1] === 'about') by[r[0]].about = r[2].replace(/\s+/g, ' ').slice(0, 220);
+    else by[r[0]].secs.push(r[1]);
   });
-  var out = Object.keys(byBrand).map(function (b) { return '## [브랜드 사이트] ' + b + '\n' + byBrand[b].join('\n\n'); });
-  return out.join('\n\n');
+  return '## [브랜드 사이트 목록]\n' +
+    '루비컴퍼니가 운영하는 브랜드 코리아 사이트입니다. 대화에 나온 브랜드의 본문은 [브랜드 사이트 상세]로 따로 들어갑니다.\n' +
+    order.map(function (b) {
+      var x = by[b];
+      return '- ' + b + ' | ' + x.url + ' | ' + x.about + ' | 섹션: ' + x.secs.join(', ');
+    }).join('\n');
+}
+
+// 질문마다: 대화에 나온 브랜드의 본문 + 브랜드 이름 없이 모델·부품으로 물었을 때 맞는 섹션
+function relatedBrandSections_(messages) {
+  try {
+    var sh = SpreadsheetApp.openById(prop_('SHEET_ID')).getSheetByName('브랜드사이트 내용');
+    if (!sh || sh.getLastRow() < 2) return '';
+    var n = sh.getLastRow() - 1;
+    var meta = sh.getRange(2, 1, n, 2).getDisplayValues();
+    var keys = sh.getRange(2, 6, n, 1).getDisplayValues();
+    var users = messages.filter(function (m) { return m.role === 'user'; }).map(function (m) { return String(m.content); });
+    var recent = users.slice(-6);
+
+    // 1) 이름이 나온 브랜드: 가장 최근에 말한 브랜드부터
+    var brands = [], seen = {};
+    meta.forEach(function (r) { if (r[0] && !seen[r[0]]) { seen[r[0]] = 1; brands.push(r[0]); } });
+    var named = [];
+    brands.forEach(function (b) {
+      var re = brandAliasRe_(b); if (!re) return;
+      for (var i = recent.length - 1; i >= 0; i--) {
+        if (re.test(recent[i])) { named.push({ brand: b, at: i }); break; }
+      }
+    });
+    named.sort(function (a, b) { return b.at - a.at; });
+    named = named.slice(0, BRAND_DETAIL.MAX_BRANDS).map(function (x) { return x.brand; });
+
+    var pick = [], picked = {};
+    named.forEach(function (b) {
+      meta.forEach(function (r, i) { if (r[0] === b && r[1] !== 'about') { pick.push(i); picked[i] = 1; } });
+    });
+
+    // 2) 브랜드 이름이 없을 때만, 모델·부품 단어로 맞는 섹션을 찾습니다.
+    var docs = [];
+    if (!named.length)
+    keys.forEach(function (k, i) { if (k[0] && !picked[i] && meta[i][1] !== 'about') docs.push({ row: i, key: k[0] }); });
+    sectionRank_(recent.slice(-3).join(' '), docs, BRAND_DETAIL.TOP_SECTIONS).forEach(function (d) {
+      if (!picked[d.row]) { pick.push(d.row); picked[d.row] = 1; }
+    });
+    if (!pick.length) return '';
+
+    var used = {}, total = 0, out = [];
+    pick.forEach(function (i) {
+      var b = meta[i][0];
+      var t = sh.getRange(i + 2, 3, 1, 2).getDisplayValues()[0];
+      var block = '### ' + b + ' · ' + meta[i][1] + ' (' + t[1] + ')\n' + t[0];
+      if ((used[b] || 0) + block.length > BRAND_DETAIL.BRAND_CHARS) return;
+      if (total + block.length > BRAND_DETAIL.TOTAL_CHARS) return;
+      used[b] = (used[b] || 0) + block.length; total += block.length;
+      out.push(block);
+    });
+    return out.join('\n\n');
+  } catch (err) {
+    console.warn('brand detail fail: ' + err);
+    return '';
+  }
 }
 
 
