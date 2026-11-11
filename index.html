@@ -600,6 +600,17 @@ var HERO_FALLBACK = [
     return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   }
 
+  /* ───────── 미리보기용 QUOC 사이즈 계산 (Apps Script의 quocRecommend_와 같은 규칙) ───────── */
+  var QUOC_SIZES = [[37,230,235,242,"4","5"],[38,236,242,249,"5","6"],[39,243,250,255,"6","7"],[40,251,255,262,"6.5","7.5"],[41,256,259,268,"7","8"],[42,260,268,275,"8","9"],[43,269,277,282,"9","10"],[44,278,283,288,"9.5","10.5"],[45,284,290,295,"10.5","11.5"],[46,291,296,301,"11","12"],[47,297,302,308,"12","13"]];
+  function quocDemo(mm) {
+    var S = QUOC_SIZES, i = 0;
+    if (mm < S[0][1] || mm > S[S.length - 1][2]) return null;
+    while (mm > S[i][2]) i++;
+    var r = S[i], next = S[i + 1], toe = Math.round((r[3] - mm) * 10) / 10, pos = (mm - r[1]) / Math.max(1, r[2] - r[1]);
+    var where = next && next[1] - mm <= 2 ? "end" : (pos <= 1 / 3 ? "front" : "mid");
+    return { eu: r[0], uk: r[4], us: r[5], min: r[1], max: r[2], toe: toe, where: where, next: next ? next[0] : null };
+  }
+
   /* ───────── 미리보기 모드 (API_URL이 비어 있을 때) ───────── */
   function demo(action, payload) {
     return new Promise(function (resolve) {
@@ -631,7 +642,7 @@ var HERO_FALLBACK = [
                 { kind: "자전거", brand: "Velo Orange", model: "Neutrino", size: "", reason: "가볍게 도심을 달리기 좋은 크로몰리 미니벨로예요.", url: "" } ] }
           ],
           shoe: [
-            "슈즈 사이즈를 같이 찾아볼게요.\n**발 길이(mm)**를 알고 계신가요? 저녁에 종이 위에 서서 뒤꿈치를 벽에 대고 가장 긴 발가락 끝까지 재면 돼요. 발볼이 넓은 편인지도 알려 주세요.",
+            "QUOC 사이즈는 **실측 발 길이(mm)**만 알면 정해져요.\n종이를 벽에 붙이고 라이딩 양말을 신은 채 뒤꿈치를 벽에 대고 서서, 가장 긴 발가락 끝을 표시해 재 주세요. 양발 중 긴 쪽 기준이에요. 발볼이 넓은 편인지도 알려 주세요.",
             "감사해요. 주로 어떤 라이딩에 신으실지, 지금 쓰는 **페달과 클릿**(SPD, SPD-SL, 평페달 등)도 알려 주세요.",
             { reply: "말씀해 주신 발 길이와 용도라면 이 정도로 보시면 돼요.\n- 발 길이가 사이즈 경계에 걸리면 반 사이즈 큰 쪽을 먼저 시착해 보시길 권해요\n- 발볼이 넓은 편이면 쇼룸에서 두 사이즈를 같이 신어 보는 게 가장 정확해요\n클릿 위치 세팅도 쇼룸에서 함께 봐 드릴 수 있어요.",
               picks: [
@@ -655,6 +666,22 @@ var HERO_FALLBACK = [
                 { kind: "부품", brand: "Paul Component", model: "Klamper", size: "포스트 마운트", reason: "기계식 디스크 브레이크로 정비가 쉬워요.", url: "" } ] }
           ]
         };
+        if (topic === "shoe") {
+          var mmHit = users.map(function (u) { return u.content.match(/(\d{3})\s*(?:mm)?/); }).filter(Boolean).pop();
+          var q = mmHit ? quocDemo(Number(mmHit[1])) : null;
+          if (q && n >= 2) {
+            var whereText = q.where === "end"
+              ? "범위의 끝에 가까워요. EU " + q.eu + (/[2459]$/.test(String(q.eu)) ? "가" : "이") + " 기본이지만, 발볼이 넓거나 두꺼운 양말을 신는다면 **EU " + q.next + "**도 함께 신어 보세요."
+              : (q.where === "front" ? "범위의 앞쪽이라 발끝 여유가 넉넉해 대부분 편하게 맞아요." : "범위의 가운데라 정사이즈로 고르시면 돼요.");
+            return resolve({ ok: true, reply:
+              "QUOC 사이즈 가이드 기준으로 발 길이 " + mmHit[1] + "mm는 **EU " + q.eu + "**(UK " + q.uk + ", US " + q.us + ")예요.\n" +
+              "- EU " + q.eu + " 발 길이 범위는 " + q.min + "~" + q.max + "mm이고, 발끝 여유는 " + q.toe + "mm예요.\n" +
+              "- " + whereText + "\n발볼이 넓다면 그랜투어러 XC 레이스, 이스케이프, M 프로 레이스처럼 끈 모델이 조절 폭이 넓어요. 사이즈 가이드에서 직접 확인해 보실 수도 있어요.",
+              picks: [
+                { kind: "슈즈", brand: "QUOC", model: "사이즈 가이드", size: "EU " + q.eu, reason: "발 길이를 넣으면 조견표 기준 사이즈와 발끝 여유를 바로 보여 줘요.", url: "https://rubiworkshop.com/quoc-size-guide" },
+                { kind: "슈즈", brand: "QUOC", model: "Gran Tourer XC Lace", size: "EU " + q.eu, reason: "끈으로 조절해 발볼이 넓은 분도 맞추기 쉬운 모델이에요.", url: "https://rubiworkshop.com/quoc" } ] });
+          }
+        }
         var step = flows[topic][Math.min(n, 3) - 1];
         return resolve(typeof step === "string" ? { ok: true, reply: step } : { ok: true, reply: step.reply, picks: step.picks });
       }, 900);

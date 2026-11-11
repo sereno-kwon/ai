@@ -42,6 +42,7 @@ var SHEETS = {
   '상품': ['상품번호', '상품명', '분류', '판매가', '제품 요약', '스펙·안내', '링크', '노출', '동기화', '검색키'],
   '브랜드사이트': ['브랜드', '주소', '노출', '마지막 동기화'],
   '상단이미지': ['이미지 주소', '제목', '링크', '노출', '출처', '동기화'],
+  '사이즈가이드': ['EU', '발 길이 최소(mm)', '발 길이 최대(mm)', '신발 길이(mm)', 'UK', 'US 남성', '동기화'],
   '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화'],
   '안내': ['항목', '내용'],
   '상담로그': ['시각', '세션', '구분', '턴', '고객 메시지', 'AI 답변', '추천 모델', '입력 토큰', '출력 토큰', '캐시 토큰']
@@ -132,7 +133,7 @@ function buildSystem_(mode, messages) {
     '- 고객의 첫 말에서 자전거, 슈즈, 부품, 브랜드 맞춤 제작 중 어떤 상담인지 파악하고, 애매하면 먼저 물어봅니다.',
     '- 바스티온: 어떤 라이딩을 원하는지(에어로 로드, 경량 로드, 그래블, 한정판), 원하는 그룹셋(시마노, 스램, 캄파놀로), 대략의 예산과 원하는 시점을 묻습니다. 신체 치수와 지오메트리는 쇼룸 상담과 디자인 포털에서 정한다고 안내합니다.',
     '- 자전거: 용도(출퇴근, 여행·투어링, 운동·로드, 도심 산책, 보관·휴대)와 주로 달리는 길을 먼저 묻고, 사이즈 이야기가 나오면 키(cm)와 가능하면 인심(다리 안쪽 길이, cm)을 묻습니다.',
-    '- 슈즈: 발 길이(mm, 저녁에 벽에 뒤꿈치를 대고 종이 위에서 잰 값), 발볼이 넓은 편인지, 평소 운동화 사이즈와 브랜드, 용도(로드, 그래블, 투어링, 도심)와 지금 쓰는 페달·클릿(SPD, SPD-SL, 평페달 등)을 묻습니다. 양발 길이가 다르면 긴 쪽 기준이라고 안내합니다.',
+    '- 슈즈: 먼저 실측 발 길이(mm)를 묻습니다. 모르면 [QUOC 사이즈 가이드]의 발 길이 재는 법을 짧게 안내합니다. 이어서 발볼이나 발등이 넓거나 높은 편인지, 용도(로드, 그래블, 투어링, 도심)와 지금 쓰는 페달·클릿(SPD, SPD-SL, 평페달 등)을 묻습니다. 양발 길이가 다르면 긴 쪽 기준입니다.',
     '- 부품: 어떤 자전거(브랜드, 모델, 연식)에 쓰려는지와, 관련 규격을 아는지 묻습니다. 예: BB 규격과 쉘 폭, 허브 OLD와 액슬 방식, 브레이크 마운트, 시트포스트 지름, 구동계 단수, 클램프 지름. 모르면 확인하는 방법을 짧게 알려 줍니다.',
     '- 예산은 고객이 편하게 말할 수 있게 범위로 묻습니다.',
     '- 마크다운은 **굵게**와 "- " 목록만 씁니다. 표, 제목(#), 링크 문법은 쓰지 않습니다.',
@@ -145,7 +146,11 @@ function buildSystem_(mode, messages) {
     '- 상품 상세에 "확인이 필요합니다" 같은 주의 문구가 있으면 빼지 말고 함께 전달합니다.',
     '- [관련 상품 상세]는 대화에 맞춰 자동으로 찾은 것이라 관계없는 상품이 섞일 수 있습니다. 질문과 맞지 않는 상품은 언급하지 않습니다.',
     '- 자료에 없는 모델이나 제품은 추천하지 않습니다. 자료에 없는 수치는 지어내지 말고 "상담원이 정확히 확인해 드릴게요"라고 답합니다.',
-    '- 슈즈 사이즈는 [슈즈] 탭의 발 길이 기준과 사이즈 팁으로만 안내하고, 경계에 걸리거나 발볼이 넓으면 쇼룸 시착을 권합니다. 다른 브랜드 사이즈 환산표를 지어내지 않습니다.',
+    '- QUOC 슈즈 사이즈는 루비워크샵 QUOC 사이즈 가이드(https://rubiworkshop.com/quoc-size-guide) 기준으로만 안내합니다. [QUOC 사이즈 계산 결과]가 있으면 EU, UK, US, 발 길이 범위, 신발 길이, 발끝 여유, 위치 안내를 그대로 따르고 숫자를 직접 다시 계산하지 않습니다.',
+    '- 계산 결과가 범위 끝에 가까우면 다음 사이즈도 함께 신어 보라고 안내하고, 발볼이 넓거나 발등이 높으면 레이스(끈) 모델(그랜투어러 XC 레이스, 이스케이프, M 프로 레이스)을 권합니다. QUOC는 대체로 정사이즈라는 점도 필요할 때 말합니다.',
+    '- 평소 신는 운동화 사이즈(예: "운동화 270 신어요")는 실측 발 길이가 아닙니다. 그 숫자로 사이즈를 정하지 말고, 발 길이 재는 법을 안내해 실측값을 다시 묻습니다.',
+    '- 사이즈를 안내할 때는 QUOC 사이즈 가이드 페이지 링크를 함께 알려 주고, 착화감은 모델과 생산 시기에 따라 조금 다를 수 있으니 쇼룸 시착을 권합니다.',
+    '- QUOC 외 브랜드 슈즈는 [슈즈] 탭 기준으로만 안내하고, 자료가 없으면 사이즈를 환산하지 않고 시착을 권합니다.',
     '- 부품 호환은 확답하지 않습니다. 자료의 규격과 고객이 말한 규격이 맞으면 "자료상 맞는 규격으로 보이며, 최종 호환은 상담원이 확인해 드립니다"처럼 말합니다. 고객 자전거의 규격이 불확실하면 추측하지 않습니다.',
     '- 규격 용어(BB, OLD, 스루액슬 등)의 일반적인 뜻은 설명해도 되지만, 특정 제품의 수치는 자료에서만 가져옵니다.',
     '- 재고, 할인, 정확한 견적, 입고일은 확답하지 말고 상담원 확인으로 넘깁니다.',
@@ -203,6 +208,8 @@ function buildSystem_(mode, messages) {
   ];
   // 질문마다 바뀌는 관련 상품 상세는 캐시 뒤에 붙입니다.
   if (mode === 'chat' && messages) {
+    var sizeCalc = quocSizeBlock_(messages);
+    if (sizeCalc) blocks.push({ type: 'text', text: '[QUOC 사이즈 계산 결과]\n' + sizeCalc });
     var related = relatedProducts_(messages);
     if (related) blocks.push({ type: 'text', text: '[관련 상품 상세]\n' + related });
   }
@@ -238,6 +245,8 @@ function loadKnowledge_() {
 
   var brandText = brandSiteKnowledge_(ss);
   if (brandText) parts.push(brandText);
+
+  parts.push(quocGuideKnowledge_());
 
   var catalog = productCatalog_(ss);
   if (catalog) parts.push(catalog);
@@ -454,6 +463,7 @@ function onOpen() {
     .addItem('상품 동기화 처음부터 다시', 'resyncProductsFromStart')
     .addItem('브랜드 사이트 동기화 (지금)', 'syncBrandSites')
     .addItem('상단 이미지 동기화 (지금)', 'syncHeroImages')
+    .addItem('QUOC 사이즈 가이드 동기화 (지금)', 'syncSizeGuide')
     .addItem('매일 자동 동기화 켜기', 'enableDailySync')
     .addToUi();
 }
@@ -510,6 +520,7 @@ function syncProducts() {
     if (!state) {
       try { syncBrandSites(); } catch (e) { console.warn('brand sync fail: ' + e); }
       try { syncHeroImages(); } catch (e) { console.warn('hero sync fail: ' + e); }
+      try { syncSizeGuide(); } catch (e) { console.warn('size guide sync fail: ' + e); }
       state = { ids: fetchSitemapIds_(), pos: 0 };
       if (!state.ids.length) throw new Error('사이트맵에서 상품을 찾지 못했습니다.');
       props.setProperty('SHOP_SYNC', JSON.stringify(state));
@@ -957,4 +968,144 @@ function parseLookbook_(html) {
     out.push({ src: im[1], title: title, link: /^https:\/\//.test(href) ? href : HERO.LOOKBOOK });
   });
   return out;
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// QUOC 사이즈 가이드 (https://rubiworkshop.com/quoc-size-guide)
+//   페이지의 조견표(SIZES)를 매일 '사이즈가이드' 탭에 저장하고,
+//   대화에 실측 발 길이가 나오면 가이드와 같은 규칙으로 계산한 결과를 AI에 넘깁니다.
+//   AI가 숫자를 직접 계산하지 않게 해서 가이드와 답이 어긋나지 않도록 합니다.
+// ════════════════════════════════════════════════════════════════
+var QUOC_GUIDE = {
+  URL: 'https://rubiworkshop.com/quoc-size-guide',
+  // [EU, 발 길이 최소, 발 길이 최대, 신발 길이, UK, US 남성]. 페이지를 못 읽을 때 쓰는 기본값 (2026-11-11 페이지 기준)
+  DEFAULT: [[37,230,235,242,'4','5'],[38,236,242,249,'5','6'],[39,243,250,255,'6','7'],[40,251,255,262,'6.5','7.5'],
+            [41,256,259,268,'7','8'],[42,260,268,275,'8','9'],[43,269,277,282,'9','10'],[44,278,283,288,'9.5','10.5'],
+            [45,284,290,295,'10.5','11.5'],[46,291,296,301,'11','12'],[47,297,302,308,'12','13']],
+  LACE_MODELS: '그랜투어러 XC 레이스, 이스케이프, M 프로 레이스'
+};
+
+function syncSizeGuide() {
+  var resp = UrlFetchApp.fetch(QUOC_GUIDE.URL, { muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) { console.warn('size guide ' + resp.getResponseCode()); return; }
+  var rows = parseSizeTable_(resp.getContentText());
+  if (!rows) { console.warn('size guide: SIZES not found, keeping previous table'); return; }
+  var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
+  var sh = ss.getSheetByName('사이즈가이드') || ss.insertSheet('사이즈가이드');
+  sh.clearContents();
+  sh.getRange(1, 1, 1, SHEETS['사이즈가이드'].length).setValues([SHEETS['사이즈가이드']]).setFontWeight('bold');
+  sh.setFrozenRows(1);
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+  sh.getRange(2, 1, rows.length, 7).setValues(rows.map(function (r) { return r.concat([stamp]); }));
+  CacheService.getScriptCache().remove('quoc_sizes');
+  clearCache();
+}
+
+function parseSizeTable_(html) {
+  var m = String(html).match(/SIZES\s*=\s*(\[\s*\[[\s\S]*?\]\s*\])/);
+  if (!m) return null;
+  try {
+    var rows = JSON.parse(m[1].replace(/'/g, '"'));
+    var ok = Array.isArray(rows) && rows.length >= 5 && rows.every(function (r) {
+      return r.length >= 6 && isFinite(r[0]) && isFinite(r[1]) && isFinite(r[2]) && isFinite(r[3]) && Number(r[1]) <= Number(r[2]);
+    });
+    return ok ? rows.map(function (r) { return [Number(r[0]), Number(r[1]), Number(r[2]), Number(r[3]), String(r[4]), String(r[5])]; }) : null;
+  } catch (e) { return null; }
+}
+
+function quocSizes_() {
+  var cache = CacheService.getScriptCache(), hit = cache.get('quoc_sizes');
+  if (hit) return JSON.parse(hit);
+  var rows = null;
+  try {
+    var sh = SpreadsheetApp.openById(prop_('SHEET_ID')).getSheetByName('사이즈가이드');
+    if (sh && sh.getLastRow() > 1) {
+      rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getDisplayValues()
+        .filter(function (r) { return r[0] && isFinite(r[1]) && isFinite(r[2]); })
+        .map(function (r) { return [Number(r[0]), Number(r[1]), Number(r[2]), Number(r[3]), String(r[4]), String(r[5])]; });
+    }
+  } catch (e) { console.warn('size sheet read fail: ' + e); }
+  if (!rows || rows.length < 5) rows = QUOC_GUIDE.DEFAULT;
+  rows.sort(function (a, b) { return a[1] - b[1]; });
+  cache.put('quoc_sizes', JSON.stringify(rows), 3600);
+  return rows;
+}
+
+/** 가이드 페이지와 같은 규칙으로 발 길이(mm)에 맞는 QUOC 사이즈를 계산합니다. */
+function quocRecommend_(mm) {
+  var S = quocSizes_(), first = S[0], last = S[S.length - 1];
+  if (mm < first[1]) return { inRange: false, text: mm + 'mm는 QUOC 조견표의 가장 작은 사이즈(EU ' + first[0] + ', ' + first[1] + '~' + first[2] + 'mm)보다 작습니다. 매장에서 직접 신어 보시길 권합니다.' };
+  if (mm > last[2]) return { inRange: false, text: mm + 'mm는 QUOC 조견표의 가장 큰 사이즈(EU ' + last[0] + ', ' + last[1] + '~' + last[2] + 'mm)보다 큽니다. 사이즈 상담은 1551-5320으로 문의해 주세요.' };
+  var i = 0;
+  while (i < S.length && mm > S[i][2]) i++;   // 범위 사이(예: 255.5mm)는 다음 사이즈로
+  var r = S[i], next = S[i + 1];
+  var toe = Math.round((r[3] - mm) * 10) / 10;
+  var pos = (mm - r[1]) / Math.max(1, r[2] - r[1]);
+  var where, advice, alsoTry = '';
+  if (next && next[1] - mm <= 2) {
+    where = '끝';
+    alsoTry = 'EU ' + next[0];
+    advice = '발 길이가 EU ' + r[0] + ' 범위의 끝에 가깝습니다. EU ' + r[0] + josaIGa_(r[0]) + ' 기본이지만, 발볼이 넓거나 두꺼운 양말을 신는다면 EU ' + next[0] + '도 함께 신어 보세요.';
+  } else if (pos <= 1 / 3) {
+    where = '앞쪽';
+    advice = 'EU ' + r[0] + ' 범위의 앞쪽입니다. 발끝 여유가 넉넉해 대부분 편하게 맞습니다.';
+  } else {
+    where = '가운데';
+    advice = 'EU ' + r[0] + ' 범위의 가운데입니다. 정사이즈로 고르시면 됩니다.';
+  }
+  return {
+    inRange: true, eu: r[0], uk: r[4], us: r[5], min: r[1], max: r[2], shoe: r[3], toe: toe, where: where, alsoTry: alsoTry,
+    text: [
+      '실측 발 길이: ' + mm + 'mm',
+      '추천: EU ' + r[0] + ' (UK ' + r[4] + ', US 남성 ' + r[5] + ')',
+      'EU ' + r[0] + ' 발 길이 범위: ' + r[1] + '~' + r[2] + 'mm, 신발 안쪽 길이: ' + r[3] + 'mm, 발끝 여유: ' + toe + 'mm',
+      '범위 안 위치: ' + where + (alsoTry ? ' (함께 신어 볼 사이즈: ' + alsoTry + ')' : ''),
+      '가이드 안내: ' + advice,
+      '발볼 안내: 발볼이 넓다면 레이스 모델(' + QUOC_GUIDE.LACE_MODELS + ')이 조절 폭이 넓어 같은 사이즈로도 편하게 맞추기 쉽습니다.',
+      '가이드 링크: ' + QUOC_GUIDE.URL
+    ].join('\n')
+  };
+}
+
+/** 대화에서 실측 발 길이를 찾아 계산 결과를 만듭니다. 슈즈 이야기가 아니면 비워 둡니다. */
+function quocSizeBlock_(messages) {
+  var users = messages.filter(function (m) { return m.role === 'user'; }).map(function (m) { return m.content; });
+  var all = users.join('\n');
+  if (!/(슈즈|신발|클릿|QUOC|쿽|발\s*길이|발길이|발\s*사이즈|운동화)/i.test(all)) return '';
+  var foot = null, shoeSizeOnly = null;
+  for (var k = users.length - 1; k >= 0 && foot === null; k--) {
+    var t = users[k];
+    var mmHit = t.match(/(\d{3}(?:\.\d)?)\s*(?:mm|밀리|미리)/i);
+    var cmHit = t.match(/(\d{2}(?:\.\d)?)\s*(?:cm|센티)/i);
+    var measured = /(발\s*길이|발길이|실측|재\s*보|재봤|재어|측정|맨발)/.test(t);
+    if (mmHit && Number(mmHit[1]) >= 200 && Number(mmHit[1]) <= 340) foot = Number(mmHit[1]);
+    else if (cmHit && measured && Number(cmHit[1]) >= 20 && Number(cmHit[1]) <= 34) foot = Number(cmHit[1]) * 10;
+    else if (measured) {
+      var bare = t.match(/(?:^|[^\d])(2\d{2}|3[0-3]\d)(?:\.\d)?(?![\d])/);
+      if (bare) foot = Number(bare[1]);
+    } else if (shoeSizeOnly === null && /(운동화|신발|신어요|신는)/.test(t)) {
+      var ss = t.match(/(?:^|[^\d])(2[2-9]\d|3[0-2]\d)(?![\d])/);
+      if (ss) shoeSizeOnly = Number(ss[1]);
+    }
+  }
+  if (foot !== null) return quocRecommend_(foot).text;
+  if (shoeSizeOnly !== null) return '고객이 말한 ' + shoeSizeOnly + '은 평소 신발 사이즈로 보이며 실측 발 길이가 아닙니다. QUOC 가이드는 맨발 실측 발 길이 기준이므로 사이즈를 정하지 말고 발 길이 재는 법을 안내해 실측값을 물어보세요. 가이드 링크: ' + QUOC_GUIDE.URL;
+  return '';
+}
+
+// 숫자 뒤 조사: 2, 4, 5, 9로 끝나면 '가', 나머지는 '이' (예: 42가, 43이)
+function josaIGa_(n) { return /[2459]$/.test(String(n)) ? '가' : '이'; }
+
+function quocGuideKnowledge_() {
+  var S = quocSizes_();
+  return [
+    '## [QUOC 사이즈 가이드] ' + QUOC_GUIDE.URL,
+    '발 길이만 알면 사이즈가 정해집니다. 로드, 그래블, 시티 슈즈 모두 같은 조견표를 씁니다.',
+    '조견표 (EU | 발 길이 mm | 신발 안쪽 길이 mm | UK | US 남성). 발 길이는 맨발 기준 실측입니다.',
+    S.map(function (r) { return r[0] + ' | ' + r[1] + '~' + r[2] + ' | ' + r[3] + ' | ' + r[4] + ' | ' + r[5]; }).join('\n'),
+    '발 길이 재는 법: 종이를 벽에 붙여 단단한 바닥에 놓고, 평소 라이딩 양말을 신고, 뒤꿈치를 벽에 가볍게 댄 채 서서, 가장 긴 발가락 끝을 펜을 세워 표시한 뒤, 벽에서 표시까지 잽니다. 양발을 모두 재고 더 긴 값을 씁니다.',
+    '고를 때 알아 두세요: 두 사이즈 사이에 걸치면 한 사이즈 올리는 것을 권장합니다. 신발 길이는 발 길이보다 5~9mm 길게 설계되어 발끝에 여유가 있습니다. 발은 오후나 오래 서 있은 뒤에 커지므로 그때 재는 것이 정확합니다. QUOC는 대체로 정사이즈이지만 발볼이 넓다면 한 치수 올리는 경우가 많습니다. 발볼이나 발등이 높다면 레이스(끈) 모델이 조절 폭이 더 넓습니다.',
+    '조견표는 QUOC 사이즈 가이드 기준이며 모델과 생산 시기에 따라 착화감이 조금씩 다를 수 있습니다. 사이즈 문의 1551-5320.'
+  ].join('\n');
 }
