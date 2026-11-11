@@ -43,6 +43,7 @@ var SHEETS = {
   '브랜드사이트': ['브랜드', '주소', '노출', '마지막 동기화'],
   '상단이미지': ['이미지 주소', '제목', '링크', '노출', '출처', '동기화'],
   '사이즈가이드': ['EU', '발 길이 최소(mm)', '발 길이 최대(mm)', '신발 길이(mm)', 'UK', 'US 남성', '동기화'],
+  '슈즈가이드': ['데이터(JSON)', '동기화'],
   '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화'],
   '안내': ['항목', '내용'],
   '상담로그': ['시각', '세션', '구분', '턴', '고객 메시지', 'AI 답변', '추천 모델', '입력 토큰', '출력 토큰', '캐시 토큰']
@@ -140,6 +141,14 @@ function buildSystem_(mode, messages) {
     '- 긴 줄표(—)는 쓰지 않고 쉼표로 대신합니다.',
     '- 영문은 대문자로만 쓰지 말고 대소문자로 씁니다. 단 QUOC, MKS처럼 원래 대문자인 브랜드명은 그대로 씁니다.',
     '',
+    '[슈즈 상담 우선]',
+    '- 고객 말에 슈즈 관련 말(슈즈, 신발, 클릿, QUOC, 쿽, 발 길이, 발볼, 발등, 운동화, QUOC 모델명 등)이 나오면 그 대화는 슈즈 상담으로 진행합니다. 자전거 추천 질문(키, 인심, 자전거 예산, 자전거 모델)은 하지 않습니다.',
+    '- 슈즈 상담은 [QUOC 슈즈 가이드] 순서로 묻습니다. 1) 주로 달리는 길과 라이딩 스타일(로드 레이스, 로드 올라운드, 카페·그룹, 시티·출퇴근, 올로드, 그래블, XC·트레일, 또는 포장도로 비율) 2) 쓰는 페달과 클릿(로드 페달 3볼트 SPD-SL, 그래블·MTB 페달 2볼트 SPD, 평페달) 3) 다이얼과 끈 중 선호, 발볼·발등 4) 실측 발 길이. 한 번에 1~2개씩만 묻습니다.',
+    '- 추천은 [QUOC 슈즈 가이드]의 라이딩 스타일별 추천을 따릅니다. 해당 스타일의 추천 두 모델을 가이드 표시 방식대로(다이얼·끈 또는 추천 1·2) 함께 보여 주고, 가이드의 이유와 상황별 대안을 덧붙입니다. 가이드에 없는 조합을 지어내지 않습니다.',
+    '- 클릿 규격이 고객 페달과 맞는지 꼭 확인합니다. 로드 슈즈는 3볼트(SPD-SL 규격) 로드 페달용, 그래블·시티 슈즈는 2볼트(SPD 규격) 그래블·MTB 페달용, 위켄드는 클릿 매립형이라 평페달과 2볼트 클릿 페달을 모두 씁니다.',
+    '- 슈즈 추천 카드의 링크는 [QUOC 슈즈 가이드]에 적힌 상품 링크를 쓰고, 고르기 어려워하면 슈즈 가이드 페이지(https://rubiworkshop.com/quoc-shoes-guide)를 알려 줍니다.',
+    '- 고객이 자전거 이야기로 돌아가면 그때 자전거 상담으로 바꿉니다.',
+    '',
     '[정확성]',
     '- 자전거, 부품, 슈즈의 스펙(규격, 무게, 소재, 옵션), 사이즈, 지오메트리, 호환 정보, 리드타임은 [관련 상품 상세](루비워크샵 상품 페이지의 제품 요약·특징·안내 아코디언)와 [루비워크샵 자료]에 있는 내용만 말합니다.',
     '- 판매가는 [관련 상품 상세]나 상품 목록에 표기된 루비워크샵 판매가로만 안내합니다.',
@@ -208,6 +217,7 @@ function buildSystem_(mode, messages) {
   ];
   // 질문마다 바뀌는 관련 상품 상세는 캐시 뒤에 붙입니다.
   if (mode === 'chat' && messages) {
+    if (shoeMode_(messages)) blocks.push({ type: 'text', text: '[상담 모드] 지금 대화는 슈즈 상담입니다. 자전거 추천 질문은 하지 말고 [슈즈 상담 우선]과 [QUOC 슈즈 가이드] 순서대로 진행하세요. 이미 답한 항목은 다시 묻지 않습니다.' });
     var sizeCalc = quocSizeBlock_(messages);
     if (sizeCalc) blocks.push({ type: 'text', text: '[QUOC 사이즈 계산 결과]\n' + sizeCalc });
     var related = relatedProducts_(messages);
@@ -247,6 +257,7 @@ function loadKnowledge_() {
   if (brandText) parts.push(brandText);
 
   parts.push(quocGuideKnowledge_());
+  parts.push(shoeGuideKnowledge_());
 
   var catalog = productCatalog_(ss);
   if (catalog) parts.push(catalog);
@@ -464,6 +475,7 @@ function onOpen() {
     .addItem('브랜드 사이트 동기화 (지금)', 'syncBrandSites')
     .addItem('상단 이미지 동기화 (지금)', 'syncHeroImages')
     .addItem('QUOC 사이즈 가이드 동기화 (지금)', 'syncSizeGuide')
+    .addItem('QUOC 슈즈 가이드 동기화 (지금)', 'syncShoeGuide')
     .addItem('매일 자동 동기화 켜기', 'enableDailySync')
     .addToUi();
 }
@@ -521,6 +533,7 @@ function syncProducts() {
       try { syncBrandSites(); } catch (e) { console.warn('brand sync fail: ' + e); }
       try { syncHeroImages(); } catch (e) { console.warn('hero sync fail: ' + e); }
       try { syncSizeGuide(); } catch (e) { console.warn('size guide sync fail: ' + e); }
+      try { syncShoeGuide(); } catch (e) { console.warn('shoe guide sync fail: ' + e); }
       state = { ids: fetchSitemapIds_(), pos: 0 };
       if (!state.ids.length) throw new Error('사이트맵에서 상품을 찾지 못했습니다.');
       props.setProperty('SHOP_SYNC', JSON.stringify(state));
@@ -1108,4 +1121,153 @@ function quocGuideKnowledge_() {
     '고를 때 알아 두세요: 두 사이즈 사이에 걸치면 한 사이즈 올리는 것을 권장합니다. 신발 길이는 발 길이보다 5~9mm 길게 설계되어 발끝에 여유가 있습니다. 발은 오후나 오래 서 있은 뒤에 커지므로 그때 재는 것이 정확합니다. QUOC는 대체로 정사이즈이지만 발볼이 넓다면 한 치수 올리는 경우가 많습니다. 발볼이나 발등이 높다면 레이스(끈) 모델이 조절 폭이 더 넓습니다.',
     '조견표는 QUOC 사이즈 가이드 기준이며 모델과 생산 시기에 따라 착화감이 조금씩 다를 수 있습니다. 사이즈 문의 1551-5320.'
   ].join('\n');
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// QUOC 슈즈 가이드 (https://rubiworkshop.com/quoc-shoes-guide)
+//   라이딩 스타일별 다이얼·끈 추천, 모델 11종의 아웃솔·클로저·클릿, 아웃솔 5종을 매일 읽어 옵니다.
+//   페이지 스크립트를 실행하지 않고 데이터 부분의 글자만 읽어 JSON으로 바꿉니다.
+// ════════════════════════════════════════════════════════════════
+var SHOE_GUIDE = {
+  URL: 'https://rubiworkshop.com/quoc-shoes-guide',
+  PRODUCT: 'https://rubiworkshop.com/shop_view/',
+  // 페이지를 못 읽을 때 쓰는 기본값 (2026-11-11 페이지와 글자 단위로 같음)
+  DEFAULT: {"SOLES":{"carbon":{"ko":"풀 카본","sub":"핸드 레이드 · 가장 단단함","stiff":5,"walk":1,"body":"카본 섬유를 손으로 적층한 솔입니다. 페달링 힘을 잃지 않고 전달하는 대신 걷기에는 불편해, 기록과 레이스가 목적인 로드 주행에 맞습니다."},"cctpu":{"ko":"카본 컴포지트 + TPU 트레드","sub":"오프로드 퍼포먼스","stiff":4,"walk":3,"body":"카본 컴포지트로 강성을 내고 TPU 트레드를 일체로 성형해 접지를 얻습니다. 페달 위에서는 단단하고 땅 위에서는 걸을 수 있는 오프로드 솔이며, 교체형 토 스터드를 달 수 있습니다."},"composite":{"ko":"나일론 · 컴포지트","sub":"편안한 로드","stiff":3,"walk":3,"body":"카본만큼 단단하지 않지만 힘 전달에 부족함이 없고, 발의 움직임을 조금 허용해 하루 종일 신어도 발바닥이 덜 피로합니다. 카페에 들르고 자주 내리는 주행에 맞습니다."},"rubber":{"ko":"러버 트레드","sub":"그래블그립 · 워커블","stiff":2,"walk":4,"body":"러버 트레드가 자갈과 젖은 바위에서 접지를 내 하이크어바이크 구간을 걸어 오를 수 있습니다. 그랜투어러 II는 나일론 컴포지트 미드솔로 강성을 더했습니다."},"eva":{"ko":"Bloom™ EVA","sub":"스니커즈형 · 가장 편안함","stiff":1,"walk":5,"body":"녹조에서 추출한 Bloom™ EVA 폼을 아웃솔과 풋베드에 썼습니다. 운동화처럼 편하고 클릿이 바닥 안쪽에 매립되어 평페달과 클릿 페달을 모두 쓸 수 있습니다."}},"CLOSE":{"dual":"듀얼 다이얼","dial":"다이얼","single":"싱글 다이얼","lace":"끈","lace2":"투톤 레이스"},"SHOES":[{"id":"m3pro","name":"M3 Pro","kr":"M3 프로","idx":1078,"sole":"carbon","close":"dual","cleat":"3볼트","use":"로드 레이스 · 고강도 트레이닝","line":"게레인트 토마스가 레이스에서 신는 QUOC 최상급 로드 슈즈. 보강 테두리로 관리와 내구성을 다듬었습니다."},{"id":"m3air","name":"M3 Air","kr":"M3 에어","idx":413,"sole":"carbon","close":"dual","cleat":"3볼트","use":"로드 레이스 · 더운 날 고강도","line":"TPU 라미네이트 메시와 넓은 통풍 패널로 열을 빼내는 초경량 버전입니다."},{"id":"mprolace","name":"M Pro Lace","kr":"M 프로 레이스","idx":1228,"sole":"carbon","close":"lace2","cleat":"3볼트","use":"로드 레이스 · 장거리","line":"투톤 레이스로 발등 압력을 세밀하게 나누는 카본 로드 슈즈. 245g(EU42)입니다."},{"id":"mono2","name":"Mono II","kr":"모노 2","idx":317,"sole":"carbon","close":"dual","cleat":"3볼트","use":"로드 레이스 · 투어링 올라운드","line":"UD 카본 아웃솔과 이중 다이얼, 텅리스 랩 디자인의 올라운드 로드 슈즈입니다."},{"id":"motion","name":"Motion","kr":"모션","idx":1229,"sole":"composite","close":"dial","cleat":"3볼트","use":"카페 라이드 · 통근 · 그룹 라이드","line":"레이스가 아닌 라이딩의 즐거움에 맞춘 로드 슈즈. 나일론 컴포지트 솔로 걷기에도 부담이 없습니다."},{"id":"escroad","name":"Escape Road","kr":"이스케이프 로드","idx":299,"sole":"composite","close":"lace","cleat":"3볼트","use":"어드벤처 로드 · 통근 · 카페 라이드","line":"클래식 레이스업에 컴포지트 솔. 일반 로드 페달에 그대로 맞고 걷기에도 편합니다."},{"id":"weekend","name":"Weekend","kr":"위켄드","idx":320,"sole":"eva","close":"lace","cleat":"2볼트 매립","use":"시티 사이클링 · 일상","line":"평페달과 클릿 페달을 모두 쓰는 시티 사이클링 스니커즈. 3M 리플렉티브를 더했습니다."},{"id":"escoff","name":"Escape Off-Road","kr":"이스케이프 오프로드","idx":296,"sole":"rubber","close":"lace","cleat":"2볼트","use":"그래블 · 올로드 · 바이크패킹 · 통근","line":"워커블 러버 아웃솔의 레이스업 그래블 슈즈. 자전거에서 내린 뒤에도 어색하지 않습니다."},{"id":"gt2","name":"Gran Tourer II","kr":"그랜투어러 2","idx":313,"sole":"rubber","close":"single","cleat":"2볼트","use":"그래블 · 바이크패킹 · 울트라 디스턴스","line":"원조 그래블 슈즈의 후속. 무봉제 상단과 자체 개발 원클릭 다이얼, 약 756g(EU45 한 켤레)입니다."},{"id":"gtxc","name":"Gran Tourer XC","kr":"그랜투어러 XC","idx":303,"sole":"cctpu","close":"dial","cleat":"2볼트","use":"퍼포먼스 그래블 · XC · 바이크패킹","line":"그랜투어러 시리즈에서 가장 성능 지향적인 오프로드 슈즈. 러버 토캡과 교체형 토 스터드를 갖췄습니다."},{"id":"gtxclace","name":"Gran Tourer XC Lace","kr":"그랜투어러 XC 레이스","idx":408,"sole":"cctpu","close":"lace","cleat":"2볼트","use":"퍼포먼스 그래블 · XC · 바이크패킹","line":"그랜투어러 XC의 끈 버전. 부러질 부품이 없어 며칠짜리 여행에서 특히 안심입니다."}],"STYLES":[{"tick":"로드 레이스","ko":"로드 레이스 · 기록","paved":100,"a":"m3pro","b":"mprolace","why":"기록과 레이스가 목적이라면 풀 카본 솔이 답입니다. 다이얼은 스프린트 중에도 한 손으로 조임을 맞출 수 있고, 끈은 발등 압력을 더 고르게 나눕니다.","alt":["한여름 고강도 주행이 많다면","M3 에어. 넓은 메시 패널로 열을 빼내고 젖어도 빨리 마릅니다."]},{"tick":"로드 올라운드","ko":"로드 올라운드 · 롱라이드","paved":98,"a":"mono2","b":"mprolace","why":"레이스와 투어링을 오가는 로드 라이딩이라면 모노 2의 UD 카본 솔과 이중 다이얼이 균형이 좋습니다. 장거리에서 발이 붓는 편이라면 끈으로 구간별 장력을 맞추세요.","alt":["더 가볍고 단단한 신발을 원한다면","M3 프로. QUOC 최상급 로드 슈즈입니다."]},{"tick":"카페 · 그룹","ko":"카페 라이드 · 그룹 라이드","paved":95,"a":"motion","b":"escroad","why":"타고 내리기를 반복하는 하루에는 걷기 편한 솔이 곧 즐거움입니다. 나일론 컴포지트와 컴포지트 솔이 힘은 충분히 전달하면서 카페 바닥에서도 불편하지 않습니다.","alt":["평페달로도 타고 싶다면","위켄드. 클릿이 매립되어 평페달과 클릿 페달을 모두 쓸 수 있습니다."]},{"tick":"시티 · 출퇴근","ko":"시티 · 출퇴근","paved":90,"a":"weekend","b":"escoff","why":"일상과 자전거의 경계가 없는 라이딩이라면 운동화처럼 신는 위켄드가 가장 자연스럽습니다. 2볼트 클릿으로 SPD 페달을 쓰신다면 걷기 좋은 러버 솔의 이스케이프 오프로드도 좋습니다.","alt":["로드 페달로 출퇴근한다면","이스케이프 로드나 모션. 3볼트 클릿에 걷기 편한 솔입니다."]},{"tick":"올로드","ko":"어드벤처 · 올로드","paved":60,"a":"gt2","b":"escoff","why":"포장과 비포장을 섞어 달린다면 2볼트 클릿에 걸을 수 있는 러버 솔이 기본입니다. 그랜투어러 2는 나일론 컴포지트 미드솔로 페달링 강성을 더했고, 이스케이프 오프로드는 일상과 이어지는 디자인입니다.","alt":["포장도로 비중이 더 높다면","이스케이프 로드. 3볼트 로드 페달과 컴포지트 솔입니다."]},{"tick":"그래블","ko":"그래블 · 바이크패킹","paved":35,"a":"gt2","b":"gtxclace","why":"비포장이 대부분이라면 하이크어바이크까지 감당하는 솔이 필요합니다. 그랜투어러 2는 무봉제 상단으로 젖은 날씨에 강하고, 그랜투어러 XC 레이스는 카본 컴포지트 솔로 더 단단합니다.","alt":["그래블 레이스에 나간다면","그랜투어러 XC. 다이얼로 주행 중에도 조임을 몇 밀리미터씩 맞출 수 있습니다."]},{"tick":"XC · 트레일","ko":"XC · 트레일 · 그래블 레이스","paved":15,"a":"gtxc","b":"gtxclace","why":"가장 거친 길에서는 강성과 보호가 함께 필요합니다. 그랜투어러 XC는 카본 컴포지트 솔에 TPU 트레드, 러버 토캡과 교체형 토 스터드로 바위와 진흙을 상대합니다.","alt":["며칠짜리 바이크패킹이라면","끈 버전이 안심입니다. 예비 끈 하나면 현장에서 해결됩니다."]}]}
+};
+
+var SHOE_WORDS = /(슈즈|신발|클릿|클리트|QUOC|쿽|발\s*길이|발길이|발볼|발등|운동화|M3\s*(프로|에어|Pro|Air)|M\s*프로\s*레이스|모노\s*2|Mono|모션|Motion|위켄드|Weekend|이스케이프|Escape|그랜투어러|Gran\s*Tourer)/i;
+var BIKE_WORDS = /(자전거|프레임|미니벨로|몰튼|Moulton|크러스트|Crust|설리|Surly|팔리|Parlee|바스티온|Bastion|벨로오렌지|뉴트리노|로드바이크|그래블\s*바이크|투어링\s*자전거|지오메트리|인심)/i;
+
+/** 가장 최근에 슈즈 이야기와 자전거 이야기 중 무엇을 했는지로 상담 모드를 정합니다. */
+function shoeMode_(messages) {
+  var users = messages.filter(function (m) { return m.role === 'user'; });
+  for (var i = users.length - 1; i >= 0; i--) {
+    var t = users[i].content, shoe = SHOE_WORDS.test(t), bike = BIKE_WORDS.test(t);
+    if (shoe && !bike) return true;
+    if (bike && !shoe) return false;
+    if (shoe && bike) return true;   // 같이 나오면 슈즈 질문을 먼저 정리
+  }
+  return false;
+}
+
+function syncShoeGuide() {
+  var resp = UrlFetchApp.fetch(SHOE_GUIDE.URL, { muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) { console.warn('shoe guide ' + resp.getResponseCode()); return; }
+  var data = parseShoeGuide_(resp.getContentText());
+  if (!data) { console.warn('shoe guide: data not parsed, keeping previous'); return; }
+  var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
+  var sh = ss.getSheetByName('슈즈가이드') || ss.insertSheet('슈즈가이드');
+  sh.clearContents();
+  sh.getRange(1, 1, 1, 2).setValues([SHEETS['슈즈가이드']]).setFontWeight('bold');
+  sh.getRange(2, 1, 1, 2).setValues([[JSON.stringify(data), Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm')]]);
+  CacheService.getScriptCache().remove('shoe_guide');
+  clearCache();
+}
+
+function parseShoeGuide_(html) {
+  try {
+    var data = {};
+    ['SHOES', 'STYLES', 'SOLES', 'CLOSE'].forEach(function (n) {
+      var lit = jsLiteral_(html, n);
+      if (!lit) throw new Error(n + ' not found');
+      data[n] = literalToJson_(lit);
+    });
+    data.SHOES = data.SHOES.map(function (x) { delete x.img; return x; });
+    var ids = {};
+    var okShoes = Array.isArray(data.SHOES) && data.SHOES.length >= 5 && data.SHOES.every(function (x) { ids[x.id] = 1; return x.id && x.kr && x.sole && x.close && x.cleat; });
+    var okStyles = Array.isArray(data.STYLES) && data.STYLES.length >= 3 && data.STYLES.every(function (st) { return st.ko && ids[st.a] && ids[st.b]; });
+    return okShoes && okStyles ? data : null;
+  } catch (e) { console.warn('shoe guide parse: ' + e); return null; }
+}
+
+/** var NAME = [...] 또는 {...} 의 글자를 괄호 짝을 맞춰 잘라냅니다 (문자열 안의 괄호는 무시). */
+function jsLiteral_(src, name) {
+  var m = String(src).match(new RegExp('(?:var|const|let)\\s+' + name + '\\s*=\\s*([\\[{])'));
+  if (!m) return null;
+  var start = m.index + m[0].length - 1, open = src[start], close = open === '[' ? ']' : '}', d = 0, q = null, j = start;
+  for (; j < src.length; j++) {
+    var c = src[j];
+    if (q) { if (c === '\\') { j++; continue; } if (c === q) q = null; continue; }
+    if (c === '"' || c === "'" || c === '`') { q = c; continue; }
+    if (c === open) d++; else if (c === close) { d--; if (!d) break; }
+  }
+  return src.slice(start, j + 1);
+}
+
+/** 자바스크립트 객체 글자를 실행하지 않고 JSON으로 바꿉니다. 상수 연결(IMG+"a.png")은 문자열만 남깁니다. */
+function literalToJson_(lit) {
+  var out = '', i = 0;
+  while (i < lit.length) {
+    var c = lit[i];
+    if (c === '"' || c === "'") {
+      var j = i + 1, str = '';
+      while (j < lit.length && lit[j] !== c) { if (lit[j] === '\\') { str += lit[j] + lit[j + 1]; j += 2; continue; } str += lit[j]; j++; }
+      out += JSON.stringify(c === "'" ? str.replace(/\\'/g, "'") : JSON.parse('"' + str + '"'));
+      i = j + 1; continue;
+    }
+    var rest = lit.slice(i, i + 80);
+    var k = rest.match(/^[A-Z_][A-Z0-9_]*\s*\+\s*/);
+    if (k) { i += k[0].length; continue; }
+    var key = rest.match(/^([A-Za-z_$][\w$]*)(\s*:)/);
+    if (key && /[{,]\s*$/.test(out)) { out += JSON.stringify(key[1]) + ':'; i += key[0].length; continue; }
+    out += c; i++;
+  }
+  return JSON.parse(out.replace(/,\s*([\]}])/g, '$1'));
+}
+
+function shoeGuideData_() {
+  var cache = CacheService.getScriptCache(), hit = cache.get('shoe_guide');
+  if (hit) return JSON.parse(hit);
+  var data = null;
+  try {
+    var sh = SpreadsheetApp.openById(prop_('SHEET_ID')).getSheetByName('슈즈가이드');
+    if (sh && sh.getLastRow() > 1) data = JSON.parse(sh.getRange(2, 1).getValue());
+  } catch (e) { data = null; }
+  if (!data || !data.SHOES || !data.STYLES) data = SHOE_GUIDE.DEFAULT;
+  cache.put('shoe_guide', JSON.stringify(data), 3600);
+  return data;
+}
+
+function shoeGuideKnowledge_() {
+  var d = shoeGuideData_(), byId = {};
+  d.SHOES.forEach(function (x) { byId[x.id] = x; });
+  var name = function (id) { var x = byId[id]; return x ? x.kr + '(' + x.name + ')' : id; };
+  var soleName = function (k) { return (d.SOLES[k] && d.SOLES[k].ko) || k; };
+  var lines = [
+    '## [QUOC 슈즈 가이드] ' + SHOE_GUIDE.URL,
+    '고르는 방식: QUOC 슈즈는 아웃솔(얼마나 단단하고 걸을 수 있는가)과 클로저(다이얼인가 끈인가)를 따로 고릅니다. 아웃솔로 어디를 달릴지 정하고, 클로저로 착화감과 관리 방식을 정합니다. 솔이 단단할수록 페달링 효율이 높고 부드러울수록 걷기 편하며, 자전거에서 얼마나 자주 내리는지가 기준입니다.',
+    '',
+    '### 라이딩 스타일별 추천 (스타일 | 포장도로 비율 | 추천 두 모델 | 이유 | 상황별 대안)',
+    '가이드 표시 방식: 첫 모델이 다이얼이고 둘째가 끈이면 "다이얼로 고른다면 / 끈으로 고른다면", 그렇지 않으면 "추천 1 · 클로저 / 추천 2 · 클로저"로 보여 줍니다.'
+  ];
+  var isDial = function (id) { var x = byId[id]; return x && /^(dual|dial|single)$/.test(x.close); };
+  var isLace = function (id) { var x = byId[id]; return x && /^lace/.test(x.close); };
+  var closeName = function (id) { var x = byId[id]; return x ? (d.CLOSE[x.close] || x.close) : ''; };
+  d.STYLES.forEach(function (st) {
+    var pair = isDial(st.a) && isLace(st.b)
+      ? '다이얼로 고른다면 ' + name(st.a) + ' / 끈으로 고른다면 ' + name(st.b)
+      : '추천 1 · ' + closeName(st.a) + ' ' + name(st.a) + ' / 추천 2 · ' + closeName(st.b) + ' ' + name(st.b);
+    lines.push('- ' + st.ko + ' | 포장 ' + st.paved + '% | ' + pair + ' | ' + st.why +
+               (st.alt && st.alt.length === 2 ? ' | ' + st.alt[0] + ': ' + st.alt[1] : ''));
+  });
+  lines.push('', '### 모델 (이름 | 용도 | 클로저 | 아웃솔 | 클릿 | 설명 | 상품 링크)');
+  d.SHOES.forEach(function (x) {
+    lines.push('- ' + name(x.id) + ' | ' + x.use + ' | ' + (d.CLOSE[x.close] || x.close) + ' | ' + soleName(x.sole) + ' | ' + x.cleat + ' | ' + x.line +
+               (x.idx ? ' | ' + SHOE_GUIDE.PRODUCT + x.idx : ''));
+  });
+  lines.push('', '### 아웃솔 (이름 | 성격 | 강성 /5 | 걷기 /5 | 설명 | 모델)');
+  Object.keys(d.SOLES).forEach(function (k) {
+    var so = d.SOLES[k];
+    var models = d.SHOES.filter(function (x) { return x.sole === k; }).map(function (x) { return x.kr; }).join(', ');
+    lines.push('- ' + so.ko + ' | ' + so.sub + ' | ' + so.stiff + ' | ' + so.walk + ' | ' + so.body + ' | ' + models);
+  });
+  lines.push('',
+    '### 다이얼과 끈',
+    '- 다이얼(듀얼·싱글): 주행 중에도 한 손으로 조임을 미세하게 맞추고, 누르면 한 번에 풀립니다. 레이스에서 발이 부었을 때 페달을 밟은 채로 조절할 수 있습니다. 로드 상급 모델은 두 개의 다이얼과 혀가 없는 랩어라운드 상단입니다.',
+    '- 끈(레이스업): 발등 전체에 압력을 고르게 나누고 구간마다 장력을 다르게 줄 수 있어 발등이 높거나 발볼이 넓은 분에게 특히 편합니다. 부러질 부품이 없어 예비 끈 하나면 현장에서 해결되어 여행과 장거리에 믿음직합니다.',
+    '- 클릿: 로드 슈즈는 3볼트(SPD-SL 규격)로 로드 페달에, 그래블과 시티 슈즈는 2볼트(SPD 규격)로 그래블·MTB 페달에 맞습니다.',
+    '- 사이즈는 EU 36~47(하프 사이즈 포함, 모델별 상이). QUOC는 대체로 정사이즈이며 발볼이 넓은 분은 한 치수 올리는 경우가 많습니다. 정확한 사이즈는 [QUOC 사이즈 가이드]를 따릅니다.',
+    '- 사양은 루비워크샵 상품 페이지와 QUOC 자료 기준이며 시즌과 컬러에 따라 달라질 수 있습니다.');
+  return lines.join('\n');
 }

@@ -280,6 +280,7 @@ dialog .send { padding: 13px 22px; border: 1px solid var(--ink); }
       <button class="chip" type="button">장거리 여행용 투어링 자전거가 궁금해요</button>
       <button class="chip" type="button">몰튼과 크러스트 중에 고민 중이에요</button>
       <button class="chip" type="button">제 키에 맞는 사이즈를 알고 싶어요</button>
+      <button class="chip" type="button">라이딩 스타일에 맞는 QUOC 슈즈가 궁금해요</button>
       <button class="chip" type="button">QUOC 슈즈 사이즈를 고르고 싶어요</button>
       <button class="chip" type="button">제 자전거에 맞는 부품인지 궁금해요</button>
       <button class="chip" type="button">바스티온 맞춤 제작이 궁금해요</button>
@@ -611,6 +612,30 @@ var HERO_FALLBACK = [
     return { eu: r[0], uk: r[4], us: r[5], min: r[1], max: r[2], toe: toe, where: where, next: next ? next[0] : null };
   }
 
+  /* ───────── 미리보기용 QUOC 슈즈 가이드 (rubiworkshop.com/quoc-shoes-guide 요약) ───────── */
+  var SHOE_DEMO = {
+    m3pro: { close: "다이얼", name: "M3 Pro", kr: "M3 프로", sole: "풀 카본", cleat: "3볼트", idx: 1078, line: "QUOC 최상급 로드 슈즈예요." },
+    mprolace: { close: "끈", name: "M Pro Lace", kr: "M 프로 레이스", sole: "풀 카본", cleat: "3볼트", idx: 1228, line: "투톤 레이스로 발등 압력을 세밀하게 나눠요." },
+    mono2: { close: "다이얼", name: "Mono II", kr: "모노 2", sole: "풀 카본", cleat: "3볼트", idx: 317, line: "UD 카본 솔과 이중 다이얼의 올라운드 로드 슈즈예요." },
+    motion: { close: "다이얼", name: "Motion", kr: "모션", sole: "나일론 컴포지트", cleat: "3볼트", idx: 1229, line: "걷기에도 부담 없는 즐거운 로드 슈즈예요." },
+    escroad: { close: "끈", name: "Escape Road", kr: "이스케이프 로드", sole: "나일론 컴포지트", cleat: "3볼트", idx: 299, line: "클래식 레이스업, 걷기도 편해요." },
+    weekend: { close: "끈", name: "Weekend", kr: "위켄드", sole: "Bloom EVA", cleat: "2볼트 매립", idx: 320, line: "평페달과 클릿 페달을 모두 쓰는 스니커즈예요." },
+    escoff: { close: "끈", name: "Escape Off-Road", kr: "이스케이프 오프로드", sole: "러버 트레드", cleat: "2볼트", idx: 296, line: "걷기 좋은 러버 솔의 레이스업 그래블 슈즈예요." },
+    gt2: { close: "다이얼", name: "Gran Tourer II", kr: "그랜투어러 2", sole: "러버 트레드", cleat: "2볼트", idx: 313, line: "무봉제 상단과 원클릭 다이얼의 그래블 슈즈예요." },
+    gtxc: { close: "다이얼", name: "Gran Tourer XC", kr: "그랜투어러 XC", sole: "카본 컴포지트 + TPU", cleat: "2볼트", idx: 303, line: "가장 성능 지향적인 오프로드 슈즈예요." },
+    gtxclace: { close: "끈", name: "Gran Tourer XC Lace", kr: "그랜투어러 XC 레이스", sole: "카본 컴포지트 + TPU", cleat: "2볼트", idx: 408, line: "부러질 부품이 없어 긴 여행에 안심이에요." }
+  };
+  var STYLE_DEMO = [
+    { re: /(레이스|기록|대회)/, ko: "로드 레이스", a: "m3pro", b: "mprolace", why: "기록과 레이스가 목적이라면 풀 카본 솔이 답이에요." },
+    { re: /(롱라이드|올라운드|장거리|투어링)/, ko: "로드 올라운드", a: "mono2", b: "mprolace", why: "레이스와 투어링을 오간다면 모노 2의 균형이 좋아요." },
+    { re: /(카페|그룹|동호회)/, ko: "카페 라이드 · 그룹 라이드", a: "motion", b: "escroad", why: "타고 내리기를 반복하는 하루에는 걷기 편한 솔이 좋아요." },
+    { re: /(출퇴근|통근|시티|일상|도심)/, ko: "시티 · 출퇴근", a: "weekend", b: "escoff", why: "일상과 자전거의 경계가 없다면 운동화처럼 신는 위켄드가 자연스러워요." },
+    { re: /(올로드|어드벤처|임도)/, ko: "어드벤처 · 올로드", a: "gt2", b: "escoff", why: "포장과 비포장을 섞어 달린다면 걸을 수 있는 러버 솔이 기본이에요." },
+    { re: /(그래블|바이크패킹)/, ko: "그래블 · 바이크패킹", a: "gt2", b: "gtxclace", why: "비포장이 대부분이라면 하이크어바이크까지 감당하는 솔이 필요해요." },
+    { re: /(XC|트레일|MTB|산악)/i, ko: "XC · 트레일", a: "gtxc", b: "gtxclace", why: "가장 거친 길에서는 강성과 보호가 함께 필요해요." }
+  ];
+  function shoeStyleDemo(text) { for (var i = 0; i < STYLE_DEMO.length; i++) if (STYLE_DEMO[i].re.test(text)) return STYLE_DEMO[i]; return null; }
+
   /* ───────── 미리보기 모드 (API_URL이 비어 있을 때) ───────── */
   function demo(action, payload) {
     return new Promise(function (resolve) {
@@ -631,7 +656,9 @@ var HERO_FALLBACK = [
         }
         var users = payload.messages.filter(function (m) { return m.role === "user"; });
         var n = users.length, first = users[0].content;
-        var topic = /바스티온|bastion/i.test(first) ? "bastion" : (/슈즈|신발|클릿|QUOC|쿽/i.test(first) ? "shoe" : (/부품|규격|호환|스펙|BB|허브|크랭크|페달/i.test(first) ? "part" : "bike"));
+        var shoeWords = /(슈즈|신발|클릿|클리트|QUOC|쿽|발\s*길이|발길이|발볼|발등|운동화|위켄드|이스케이프|그랜투어러|모노|모션)/i;
+        var anyShoe = users.some(function (u) { return shoeWords.test(u.content); });
+        var topic = anyShoe ? "shoe" : (/바스티온|bastion/i.test(first) ? "bastion" : (/부품|규격|호환|스펙|BB|허브|크랭크|페달/i.test(first) ? "part" : "bike"));
         var flows = {
           bike: [
             "좋아요, 말씀해 주셔서 감사해요.\n주로 달리는 길은 어떤가요? 평지 위주인지, 언덕이 있는지도 알려 주세요.\n그리고 지하철이나 차에 실어야 할 일이 있는지도 궁금해요.",
@@ -642,7 +669,7 @@ var HERO_FALLBACK = [
                 { kind: "자전거", brand: "Velo Orange", model: "Neutrino", size: "", reason: "가볍게 도심을 달리기 좋은 크로몰리 미니벨로예요.", url: "" } ] }
           ],
           shoe: [
-            "QUOC 사이즈는 **실측 발 길이(mm)**만 알면 정해져요.\n종이를 벽에 붙이고 라이딩 양말을 신은 채 뒤꿈치를 벽에 대고 서서, 가장 긴 발가락 끝을 표시해 재 주세요. 양발 중 긴 쪽 기준이에요. 발볼이 넓은 편인지도 알려 주세요.",
+            "슈즈부터 같이 골라 볼게요.\n주로 어떤 길을 달리세요? 로드 레이스, 롱라이드, 카페·그룹 라이드, 출퇴근, 올로드, 그래블, XC 중에서 말씀해 주세요. 사이즈가 먼저 궁금하시면 **실측 발 길이(mm)**를 알려 주셔도 돼요.",
             "감사해요. 주로 어떤 라이딩에 신으실지, 지금 쓰는 **페달과 클릿**(SPD, SPD-SL, 평페달 등)도 알려 주세요.",
             { reply: "말씀해 주신 발 길이와 용도라면 이 정도로 보시면 돼요.\n- 발 길이가 사이즈 경계에 걸리면 반 사이즈 큰 쪽을 먼저 시착해 보시길 권해요\n- 발볼이 넓은 편이면 쇼룸에서 두 사이즈를 같이 신어 보는 게 가장 정확해요\n클릿 위치 세팅도 쇼룸에서 함께 봐 드릴 수 있어요.",
               picks: [
@@ -669,6 +696,20 @@ var HERO_FALLBACK = [
         if (topic === "shoe") {
           var mmHit = users.map(function (u) { return u.content.match(/(\d{3})\s*(?:mm)?/); }).filter(Boolean).pop();
           var q = mmHit ? quocDemo(Number(mmHit[1])) : null;
+          var said = users.map(function (u) { return u.content; }).join(" ");
+          var style = shoeStyleDemo(said);
+          if (style && !q) {
+            var A = SHOE_DEMO[style.a], B = SHOE_DEMO[style.b];
+            return resolve({ ok: true, reply:
+              "QUOC 슈즈 가이드 기준으로 **" + style.ko + "**에는 이렇게 추천해요.\n" +
+              (A.close === "다이얼" && B.close === "끈"
+                ? "- 다이얼로 고른다면 " + A.kr + " (" + A.sole + ", " + A.cleat + ")\n- 끈으로 고른다면 " + B.kr + " (" + B.sole + ", " + B.cleat + ")\n"
+                : "- 추천 1 · " + A.close + " " + A.kr + " (" + A.sole + ", " + A.cleat + ")\n- 추천 2 · " + B.close + " " + B.kr + " (" + B.sole + ", " + B.cleat + ")\n") + style.why +
+              "\n지금 쓰시는 페달이 3볼트 로드 페달인지, 2볼트 SPD 페달인지 알려 주시면 클릿이 맞는지 확인해 드릴게요. 실측 발 길이(mm)를 알려 주시면 사이즈도 바로 잡아 드려요.",
+              picks: [
+                { kind: "슈즈", brand: "QUOC", model: A.name, size: A.close + " · " + A.cleat, reason: A.line, url: "https://rubiworkshop.com/shop_view/" + A.idx },
+                { kind: "슈즈", brand: "QUOC", model: B.name, size: B.close + " · " + B.cleat, reason: B.line, url: "https://rubiworkshop.com/shop_view/" + B.idx } ] });
+          }
           if (q && n >= 2) {
             var whereText = q.where === "end"
               ? "범위의 끝에 가까워요. EU " + q.eu + (/[2459]$/.test(String(q.eu)) ? "가" : "이") + " 기본이지만, 발볼이 넓거나 두꺼운 양말을 신는다면 **EU " + q.next + "**도 함께 신어 보세요."
