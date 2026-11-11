@@ -116,8 +116,17 @@ a { color: inherit; }
 .top nav.r { justify-content: flex-end; }
 
 /* 히어로: 가이드 페이지처럼 사진 한 장 + 제목 블록 */
-.hero-img { background: var(--hero); aspect-ratio: 1200 / 520; overflow: hidden; margin-top: 8px; }
-.hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-img { position: relative; background: var(--hero); aspect-ratio: 1200 / 520; overflow: hidden; margin-top: 8px; }
+.hero-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 1.4s ease; }
+.hero-img img.on { opacity: 1; }
+.hero-img::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 45%; background: linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,0)); pointer-events: none; }
+.hero-cap { position: absolute; left: 28px; bottom: 22px; z-index: 2; color: #fff; text-decoration: none; display: block; max-width: calc(100% - 140px); }
+.hero-cap small { display: block; font-size: 12px; line-height: 16px; letter-spacing: .96px; color: rgba(255,255,255,.7); margin-bottom: 4px; }
+.hero-cap span { font-size: 15px; line-height: 22px; }
+.hero-dots { position: absolute; right: 28px; bottom: 28px; z-index: 2; display: flex; gap: 6px; }
+.hero-dots i { width: 18px; height: 2px; background: rgba(255,255,255,.4); transition: background .3s; }
+.hero-dots i.on { background: #fff; }
+@media (prefers-reduced-motion: reduce) { .hero-img img { transition: none; } }
 .head { padding: 40px 0 32px; }
 .eyebrow { font-size: 12px; line-height: 16px; letter-spacing: .96px; color: var(--sub); margin: 0 0 14px; }
 .title { font-size: 28px; line-height: 32px; letter-spacing: -1px; color: var(--ink); margin: 0; }
@@ -211,6 +220,8 @@ dialog .send { padding: 13px 22px; border: 1px solid var(--ink); }
   .top .logo img { height: 24px; }
   .top nav a:not(.keep) { display: none; }
   .hero-img { aspect-ratio: 4 / 3; margin-top: 0; }
+  .hero-cap { left: 18px; bottom: 16px; max-width: calc(100% - 36px); }
+  .hero-dots { display: none; }
   .head { padding: 32px 0 24px; }
   .title, .sec-head .title { font-size: 24px; line-height: 30px; }
   .finder { padding: 32px 20px 0; margin: 0 -18px; }
@@ -242,8 +253,10 @@ dialog .send { padding: 13px 22px; border: 1px solid var(--ink); }
 </header>
 
 <main class="wrap">
-  <div class="hero-img">
-    <img src="https://cdn.imweb.me/thumbnail/20260922/a4cfab47ae686.jpg" alt="몰튼 콘 에디션 미니벨로" width="1000" height="677">
+  <div class="hero-img" id="hero">
+    <img class="on" src="https://cdn.imweb.me/thumbnail/20260922/a4cfab47ae686.jpg" alt="루비워크샵 룩북, 몰튼 콘 에디션" width="1000" height="677">
+    <a class="hero-cap" id="heroCap" href="https://rubiworkshop.com/lookbook"><small>Lookbook</small><span>몰튼 콘 에디션 →</span></a>
+    <div class="hero-dots" id="heroDots" aria-hidden="true"></div>
   </div>
 
   <section class="head">
@@ -339,8 +352,24 @@ var CONFIG = {
   CHANNEL_PLUGIN_KEY: "",
   // 채널톡 연결 버튼이 켜지는 최소 대화 수
   HANDOFF_AFTER: 2,
-  MAX_TURNS: 16
+  MAX_TURNS: 16,
+  // 상단 사진이 바뀌는 간격(초)
+  HERO_SECONDS: 6
 };
+
+// API를 쓸 수 없을 때 쓰는 기본 상단 사진 (루비워크샵 룩북). 실제 운영에서는 시트의 '상단이미지' 탭이 매일 갱신됩니다.
+var HERO_FALLBACK = [
+  { src: "https://cdn.imweb.me/thumbnail/20260922/a4cfab47ae686.jpg", title: "몰튼 콘 에디션" },
+  { src: "https://cdn.imweb.me/thumbnail/20260916/57bc3c14dd511.jpg", title: "몰튼 SST WIDE 실버 그레이" },
+  { src: "https://cdn.imweb.me/thumbnail/20260910/0cc6e7e1c1523.jpg", title: "몰튼 TSR 9 파우더 핑크" },
+  { src: "https://cdn.imweb.me/thumbnail/20260910/9cffe2ed841c3.jpg", title: "몰튼 XTB 브리티쉬 레이싱 그린" },
+  { src: "https://cdn.imweb.me/thumbnail/20261105/03a7b828a7a31.jpg", title: "설리 스트래글러 블랙" },
+  { src: "https://cdn.imweb.me/thumbnail/20261104/2d45b676e24af.jpg", title: "설리 프리앰블 블랙 & 실버" },
+  { src: "https://cdn.imweb.me/thumbnail/20260916/c15da966343cd.jpg", title: "크러스트 스투피드 투어리스트" },
+  { src: "https://cdn.imweb.me/thumbnail/20260917/613909e45cdc3.jpg", title: "설리 디스크트러커 카키" },
+  { src: "https://cdn.imweb.me/thumbnail/20261030/409c66f824504.jpg", title: "설리 스트래글러 샤기 카펫" },
+  { src: "https://cdn.imweb.me/thumbnail/20260918/e6c30b9b99af3.jpg", title: "벨로오렌지 뉴트리노 그린" }
+];
 
 (function () {
   "use strict";
@@ -632,7 +661,60 @@ var CONFIG = {
     });
   }
 
+  /* ───────── 상단 사진 (룩북에서 매일 갱신, 천천히 바뀜) ───────── */
+  function initHero() {
+    var box = $("hero"), cap = $("heroCap"), dots = $("heroDots");
+    var getList = DEMO ? Promise.resolve({ images: HERO_FALLBACK }) : request("hero", {});
+    getList.then(function (res) {
+      var list = (res && res.ok !== false && res.images && res.images.length) ? res.images : HERO_FALLBACK;
+      // 가로 사진만 씁니다 (세로 사진은 상단 비율에서 크게 잘리므로)
+      return Promise.all(list.map(function (it) {
+        return new Promise(function (ok) {
+          var im = new Image();
+          im.onload = function () { ok(im.naturalWidth >= im.naturalHeight * 1.2 ? { it: it, im: im } : null); };
+          im.onerror = function () { ok(null); };
+          im.src = it.src;
+        });
+      }));
+    }).then(function (loaded) {
+      var slides = (loaded || []).filter(Boolean);
+      if (!slides.length) return;
+      // 방문할 때마다 시작 사진이 달라지도록 섞습니다
+      for (var i = slides.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = slides[i]; slides[i] = slides[j]; slides[j] = t; }
+      var first = box.querySelector("img.on");
+      var els = slides.map(function (s, k) {
+        var img = document.createElement("img");
+        img.src = s.it.src; img.alt = "루비워크샵 룩북, " + (s.it.title || "커스텀 빌드");
+        img.width = s.im.naturalWidth; img.height = s.im.naturalHeight;
+        box.insertBefore(img, cap);
+        return img;
+      });
+      dots.innerHTML = slides.length > 1 ? slides.map(function () { return "<i></i>"; }).join("") : "";
+      var idx = -1, timer = null;
+      function show(n) {
+        idx = (n + slides.length) % slides.length;
+        if (first) { first.classList.remove("on"); }
+        els.forEach(function (e, k) { e.classList.toggle("on", k === idx); });
+        [].forEach.call(dots.children, function (d, k) { d.classList.toggle("on", k === idx); });
+        var it = slides[idx].it;
+        cap.href = it.link || "https://rubiworkshop.com/lookbook";
+        cap.querySelector("span").textContent = (it.title || "Lookbook") + " →";
+      }
+      show(0);
+      if (first) setTimeout(function () { if (first.parentNode) first.parentNode.removeChild(first); }, 1600);
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (slides.length < 2 || still) return;
+      function start() { stop(); timer = setInterval(function () { show(idx + 1); }, Math.max(3, CONFIG.HERO_SECONDS) * 1000); }
+      function stop() { if (timer) clearInterval(timer); timer = null; }
+      box.addEventListener("mouseenter", stop);
+      box.addEventListener("mouseleave", start);
+      document.addEventListener("visibilitychange", function () { document.hidden ? stop() : start(); });
+      start();
+    }).catch(function () {});
+  }
+
   render();
+  initHero();
 })();
 </script>
 </body>

@@ -41,6 +41,7 @@ var SHEETS = {
   '부품': ['브랜드', '제품', '카테고리', '규격·호환', '무게', '소재', '색상·옵션', '가격대', '특징', '링크', '노출'],
   '상품': ['상품번호', '상품명', '분류', '판매가', '제품 요약', '스펙·안내', '링크', '노출', '동기화', '검색키'],
   '브랜드사이트': ['브랜드', '주소', '노출', '마지막 동기화'],
+  '상단이미지': ['이미지 주소', '제목', '링크', '노출', '출처', '동기화'],
   '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화'],
   '안내': ['항목', '내용'],
   '상담로그': ['시각', '세션', '구분', '턴', '고객 메시지', 'AI 답변', '추천 모델', '입력 토큰', '출력 토큰', '캐시 토큰']
@@ -55,6 +56,7 @@ function doPost(e) {
   try {
     var req = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (req.action === 'ping') return json_({ ok: true });
+    if (req.action === 'hero') return json_(heroImages_());
     if (req.action === 'chat') return json_(handleChat_(req));
     if (req.action === 'summary') return json_(handleSummary_(req));
     return json_({ ok: false, error: 'unknown_action' });
@@ -451,6 +453,7 @@ function onOpen() {
     .addItem('루비워크샵 상품 동기화 (지금)', 'syncProducts')
     .addItem('상품 동기화 처음부터 다시', 'resyncProductsFromStart')
     .addItem('브랜드 사이트 동기화 (지금)', 'syncBrandSites')
+    .addItem('상단 이미지 동기화 (지금)', 'syncHeroImages')
     .addItem('매일 자동 동기화 켜기', 'enableDailySync')
     .addToUi();
 }
@@ -506,6 +509,7 @@ function syncProducts() {
     var state = JSON.parse(props.getProperty('SHOP_SYNC') || 'null');
     if (!state) {
       try { syncBrandSites(); } catch (e) { console.warn('brand sync fail: ' + e); }
+      try { syncHeroImages(); } catch (e) { console.warn('hero sync fail: ' + e); }
       state = { ids: fetchSitemapIds_(), pos: 0 };
       if (!state.ids.length) throw new Error('사이트맵에서 상품을 찾지 못했습니다.');
       props.setProperty('SHOP_SYNC', JSON.stringify(state));
@@ -876,4 +880,81 @@ function brandSiteKnowledge_(ss) {
   });
   var out = Object.keys(byBrand).map(function (b) { return '## [브랜드 사이트] ' + b + '\n' + byBrand[b].join('\n\n'); });
   return out.join('\n\n');
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// 상단 이미지
+//   rubiworkshop.com/lookbook 첫 페이지 게시물 사진을 매일 모아 '상단이미지' 탭에 저장합니다.
+//   직접 추가한 행(출처: 직접)은 그대로 두고, 노출 N은 다음 동기화 때도 유지됩니다.
+//   상담 화면은 action: 'hero' 로 이 목록을 받아 사진을 천천히 바꿔 보여 줍니다.
+// ════════════════════════════════════════════════════════════════
+var HERO = { BASE: 'https://rubiworkshop.com', LOOKBOOK: 'https://rubiworkshop.com/lookbook', MAX: 12 };
+
+function syncHeroImages() {
+  var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
+  var sh = ss.getSheetByName('상단이미지') || ss.insertSheet('상단이미지');
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, SHEETS['상단이미지'].length).setValues([SHEETS['상단이미지']]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  }
+  var resp = UrlFetchApp.fetch(HERO.LOOKBOOK, { muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) { console.warn('lookbook ' + resp.getResponseCode()); return; }
+  var found = parseLookbook_(resp.getContentText()).slice(0, HERO.MAX);
+  if (!found.length) { console.warn('lookbook: no posts parsed'); return; }
+
+  var old = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getDisplayValues() : [];
+  var hidden = {}, manual = [];
+  old.forEach(function (r) {
+    if (!r[0]) return;
+    if (String(r[3]).trim().toUpperCase() === 'N') hidden[r[0]] = true;
+    if (String(r[4]).trim() !== '룩북 자동') manual.push(r);
+  });
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+  var rows = manual.concat(found.map(function (f) {
+    return [f.src, f.title, f.link, hidden[f.src] ? 'N' : 'Y', '룩북 자동', stamp];
+  }));
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 6).clearContent();
+  sh.getRange(2, 1, rows.length, 6).setValues(rows);
+  CacheService.getScriptCache().remove('hero');
+}
+
+function heroImages_() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('hero');
+  if (hit) return JSON.parse(hit);
+  var images = [];
+  try {
+    var sh = SpreadsheetApp.openById(prop_('SHEET_ID')).getSheetByName('상단이미지');
+    if (sh && sh.getLastRow() > 1) {
+      sh.getRange(2, 1, sh.getLastRow() - 1, 4).getDisplayValues().forEach(function (r) {
+        var src = String(r[0]).trim();
+        if (!/^https:\/\/[^\s"'<>]+$/.test(src) || String(r[3]).trim().toUpperCase() === 'N') return;
+        images.push({ src: src, title: str_(r[1], 60), link: safeUrl_(r[2]) });
+      });
+    }
+  } catch (err) { console.warn('hero read fail: ' + err); }
+  var out = { ok: true, images: images };
+  cache.put('hero', JSON.stringify(out), 3600);
+  return out;
+}
+
+function parseLookbook_(html) {
+  var out = [], seen = {};
+  var clean = String(html).replace(/<!--[\s\S]*?-->/g, '');
+  var parts = clean.split(/<div[^>]*class=["'][^"']*\b_post_item_wrap\b[^"']*["'][^>]*>/).slice(1);
+  parts.forEach(function (p) {
+    var im = p.match(/background-image:\s*url\((?:&quot;|&#39;|["'])?(https:\/\/cdn\.imweb\.me\/[^"'&)\s]+)/i) ||
+             p.match(/<img[^>]*src=["'](https:\/\/cdn\.imweb\.me\/[^"']+)["']/i);
+    if (!im || seen[im[1]]) return;
+    var a = p.match(/<a\b[^>]*class=["'][^"']*\bpost_link_wrap\b[^"']*["'][^>]*>/i);
+    var href = a ? (a[0].match(/href=["']([^"']+)["']/i) || [])[1] : '';
+    href = href ? decodeEntities_(href) : '';
+    if (href && href.charAt(0) === '/') href = HERO.BASE + href;
+    var tb = (p.match(/<div[^>]*class=["'][^"']*\btitle-block\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i) || [])[1] || '';
+    var title = htmlToText_(tb.replace(/<em\b[\s\S]*?<\/em>/gi, '')).replace(/\s+/g, ' ').trim();
+    seen[im[1]] = 1;
+    out.push({ src: im[1], title: title, link: /^https:\/\//.test(href) ? href : HERO.LOOKBOOK });
+  });
+  return out;
 }
