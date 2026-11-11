@@ -269,6 +269,14 @@ function loadKnowledge_() {
 }
 
 // ───────── Claude API ─────────
+// 워크스페이스를 지정하지 않고 만든 키는 ANTHROPIC_WORKSPACE_ID(wrkspc_...)를 함께 보내야 합니다.
+function claudeHeaders_(key) {
+  var h = { 'x-api-key': key, 'anthropic-version': '2023-06-01' };
+  var ws = prop_('ANTHROPIC_WORKSPACE_ID');
+  if (ws) h['anthropic-workspace-id'] = ws;
+  return h;
+}
+
 function callClaude_(system, messages, maxTokens) {
   var key = prop_('ANTHROPIC_API_KEY');
   if (!key) return { ok: false, error: 'not_configured' };
@@ -277,7 +285,7 @@ function callClaude_(system, messages, maxTokens) {
     method: 'post',
     contentType: 'application/json',
     muteHttpExceptions: true,
-    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    headers: claudeHeaders_(key),
     payload: JSON.stringify({
       model: prop_('CLAUDE_MODEL') || DEFAULTS.CLAUDE_MODEL,
       max_tokens: maxTokens,

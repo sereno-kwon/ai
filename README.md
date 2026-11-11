@@ -124,7 +124,13 @@ QUOC 슈즈 사이즈는 [rubiworkshop.com/quoc-size-guide](https://rubiworkshop
 
 ## 2. Claude API 키 넣기
 
-1. console.anthropic.com 에서 API 키를 발급합니다. 결제 한도(월 사용 한도)도 함께 걸어 두는 것을 권합니다.
+1. Claude Console(platform.claude.com)에 로그인해 API 키 페이지(platform.claude.com/settings/keys)에서 **Create key**를 누릅니다.
+   - 이름: 예 `Rubi Ai 상담`
+   - 워크스페이스: 하나(예: Default)를 지정합니다. 지정하지 않으면 아래 `ANTHROPIC_WORKSPACE_ID`도 넣어야 합니다.
+   - 만료: Apps Script에 넣어 계속 쓰는 키라 `Never` 또는 충분히 긴 기간을 고릅니다. 짧게 고르면 그날 상담이 멈춥니다.
+   - 연결 계정: 회사 공용 작업이라 가능하면 서비스 계정을 고릅니다.
+   - 키(`sk-ant-`로 시작)는 만들 때 한 번만 보입니다. 바로 복사합니다.
+   - 결제 수단과 월 사용 한도도 함께 걸어 두는 것을 권합니다.
 2. Apps Script → 프로젝트 설정 → 스크립트 속성에 추가:
 
 | 속성 | 값 |
@@ -132,6 +138,7 @@ QUOC 슈즈 사이즈는 [rubiworkshop.com/quoc-size-guide](https://rubiworkshop
 | `ANTHROPIC_API_KEY` | 발급받은 키 (필수) |
 | `CLAUDE_MODEL` | 비워 두면 `claude-sonnet-5-5` |
 | `DAILY_LIMIT` | 하루 최대 AI 호출 수, 기본 400 |
+| `ANTHROPIC_WORKSPACE_ID` | 키를 워크스페이스 없이 만든 경우에만, `wrkspc_`로 시작하는 ID |
 
 3. **AI 상담 → 연결 테스트**로 답변이 나오는지 확인합니다.
 
