@@ -3,7 +3,7 @@
 고객이 용도, 주행 환경, 키와 예산을 이야기하면 AI가 루비워크샵 취급 모델 중 어울리는 모델과 사이즈 방향을 안내하고, 슈즈 사이즈와 부품 스펙·규격 질문에도 답하며, "채널톡으로 상담 이어가기"를 누르면 상담 요약이 채널톡으로 넘어가는 고객용 상담 앱입니다.
 
 ```
-consult.rubiworkshop.com (정적 사이트, 저장소 루트)
+ai.rubiworkshop.com (정적 사이트, 저장소 루트)
         │  POST (text/plain JSON)
         ▼
 Google Apps Script 웹앱 (apps-script/Code.gs)
@@ -109,7 +109,7 @@ var CONFIG = {
 
 1. 이 저장소(`sereno-kwon/ai`) 루트가 그대로 사이트입니다.
 2. GitHub Pages(main 루트) 또는 Cloudflare Pages로 배포합니다.
-3. DNS에 `consult` CNAME 레코드를 추가합니다. 다른 주소를 쓰려면 `CNAME`, `index.html`의 canonical·og:url·JSON-LD, `robots.txt`, `sitemap.xml`의 주소를 함께 바꿉니다.
+3. DNS에 `ai` CNAME 레코드를 추가합니다. 다른 주소를 쓰려면 `CNAME`, `index.html`의 canonical·og:url·JSON-LD, `robots.txt`, `sitemap.xml`의 주소를 함께 바꿉니다.
 4. 루비워크샵 상담(CONSULTING) 버튼이나 rubiworkshop.com/consulting 페이지에서 이 주소로 연결합니다.
 
 ## 6. (선택) 채널톡 팀챗 알림

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://consult.rubiworkshop.com/sitemap.xml
+Sitemap: https://ai.rubiworkshop.com/sitemap.xml

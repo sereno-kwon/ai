@@ -2,7 +2,7 @@
  * Rubi Workshop AI 자전거 상담 백엔드 (Google Apps Script 웹앱)
  *
  * 흐름
- *   상담 화면(consult.rubiworkshop.com) → doPost → 지식 시트 + Claude API → 답변
+ *   상담 화면(ai.rubiworkshop.com) → doPost → 지식 시트 + Claude API → 답변
  *   고객이 "채널톡으로 상담 이어가기"를 누르면 → summary 액션 → 상담 요약
  *   → (선택) 채널톡 팀챗 그룹에 요약 알림
  *
