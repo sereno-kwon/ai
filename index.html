@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI 자전거 상담 | Rubi Workshop 루비워크샵</title>
-<meta name="description" content="루비워크샵 AI 자전거 상담. 몰튼, 크러스트, 바스티온, 팔리 등 취급 자전거의 모델과 사이즈, QUOC 슈즈 사이즈, 부품 스펙과 규격을 안내하고 채널톡 상담원과 바로 이어 드립니다.">
+<meta name="description" content="루비워크샵 AI 자전거 상담. 몰튼, 크러스트, 팔리 등 취급 자전거의 모델과 사이즈, 바스티온 맞춤 제작, QUOC 슈즈 사이즈, 부품 스펙과 규격을 안내하고 채널톡 상담원과 바로 이어 드립니다.">
 <link rel="canonical" href="https://ai.rubiworkshop.com/">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#ffffff">
@@ -232,6 +232,7 @@ dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wra
       <button class="chip" type="button">제 키에 맞는 사이즈를 알고 싶어요</button>
       <button class="chip" type="button">QUOC 슈즈 사이즈를 고르고 싶어요</button>
       <button class="chip" type="button">제 자전거에 맞는 부품인지 궁금해요</button>
+      <button class="chip" type="button">바스티온 맞춤 제작이 궁금해요</button>
     </div>
 
     <div class="dock">
@@ -536,7 +537,7 @@ var CONFIG = {
         }
         var users = payload.messages.filter(function (m) { return m.role === "user"; });
         var n = users.length, first = users[0].content;
-        var topic = /슈즈|신발|클릿|QUOC|쿽/i.test(first) ? "shoe" : (/부품|규격|호환|스펙|BB|허브|크랭크|페달/i.test(first) ? "part" : "bike");
+        var topic = /바스티온|bastion/i.test(first) ? "bastion" : (/슈즈|신발|클릿|QUOC|쿽/i.test(first) ? "shoe" : (/부품|규격|호환|스펙|BB|허브|크랭크|페달/i.test(first) ? "part" : "bike"));
         var flows = {
           bike: [
             "좋아요, 말씀해 주셔서 감사해요.\n주로 달리는 길은 어떤가요? 평지 위주인지, 언덕이 있는지도 알려 주세요.\n그리고 지하철이나 차에 실어야 할 일이 있는지도 궁금해요.",
@@ -553,6 +554,14 @@ var CONFIG = {
               picks: [
                 { kind: "슈즈", brand: "QUOC", model: "M3 Air", size: "EU 42", reason: "통기성이 좋아 여름 로드 라이딩에 잘 맞아요.", url: "https://rubiworkshop.com/quoc" },
                 { kind: "슈즈", brand: "QUOC", model: "Gran Tourer III", size: "EU 42", reason: "걷기 편한 밑창이라 투어링과 도심에 어울려요.", url: "https://rubiworkshop.com/quoc" } ] }
+          ],
+          bastion: [
+            "바스티온은 3D 프린팅 티타늄 러그와 필라멘트 와인딩 카본 튜브로 한 대씩 맞춤 제작하는 브랜드예요.\n어떤 라이딩을 생각하고 계신가요? 에어로 로드, 경량 로드, 그래블 중에서 말씀해 주세요.",
+            "좋아요. 원하시는 그룹셋(시마노, 스램, 캄파놀로)과 대략의 예산, 받고 싶은 시점도 알려 주세요. 주문 확정 후 제작에 약 180일이 걸려요.",
+            { reply: "말씀해 주신 방향이라면 이렇게 볼 수 있어요.\n- 속도와 에어로가 우선이면 아키타입\n- 가벼움과 클래식한 실루엣이 우선이면 슈퍼레제라\n가격은 시작가 기준이고 그룹셋과 옵션에 따라 달라져요. 신체 치수와 지오메트리는 쇼룸 상담과 디자인 포털에서 함께 정해요.",
+              picks: [
+                { kind: "자전거", brand: "Bastion", model: "Archetype", size: "39,900,000원부터", reason: "바스티온 라인업에서 가장 빠른 에어로 로드예요.", url: "https://bastioncycles.co.kr/#archetype" },
+                { kind: "자전거", brand: "Bastion", model: "Superleggera", size: "26,300,000원부터", reason: "얇은 다운튜브와 러그로 더 가벼운 바스티온의 상징 모델이에요.", url: "https://bastioncycles.co.kr/#models" } ] }
           ],
           part: [
             "부품 규격을 같이 확인해 볼게요.\n어떤 자전거(브랜드, 모델, 연식)에 쓰실 예정인가요? 바꾸려는 부품이 무엇인지도 알려 주세요.",

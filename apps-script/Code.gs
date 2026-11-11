@@ -40,6 +40,8 @@ var SHEETS = {
   '슈즈': ['브랜드', '모델', '용도', '사이즈(EU)', '발 길이(mm)', '발볼', '클릿 규격', '잠금 방식', '사이즈 팁', '가격대', '링크', '노출'],
   '부품': ['브랜드', '제품', '카테고리', '규격·호환', '무게', '소재', '색상·옵션', '가격대', '특징', '링크', '노출'],
   '상품': ['상품번호', '상품명', '분류', '판매가', '제품 요약', '스펙·안내', '링크', '노출', '동기화', '검색키'],
+  '브랜드사이트': ['브랜드', '주소', '노출', '마지막 동기화'],
+  '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화'],
   '안내': ['항목', '내용'],
   '상담로그': ['시각', '세션', '구분', '턴', '고객 메시지', 'AI 답변', '추천 모델', '입력 토큰', '출력 토큰', '캐시 토큰']
 };
@@ -118,13 +120,15 @@ function buildSystem_(mode, messages) {
     '- 자전거: 고객의 용도, 주행 환경, 체형, 예산, 취향을 파악해 루비워크샵이 취급하는 모델 중 알맞은 모델과 사이즈 방향을 제안합니다.',
     '- 슈즈: 발 길이와 발볼, 용도, 페달·클릿 규격을 파악해 취급 슈즈의 모델과 사이즈를 안내합니다.',
     '- 부품: 취급 부품의 스펙(규격, 무게, 소재, 옵션)을 알려 주고, 고객 자전거와 맞는지 확인하는 데 필요한 정보를 함께 정리합니다.',
+    '- 브랜드 맞춤 제작: 바스티온처럼 한 대씩 주문 제작하는 브랜드는 [브랜드 사이트] 자료를 바탕으로 모델, 제작 과정, 기간, 시작 가격을 안내하고 쇼룸 방문 상담으로 이어 줍니다.',
     '- 최종 사이즈와 빌드, 부품 호환은 쇼룸 피팅·시착과 상담원 확인으로 확정된다는 점을 자연스럽게 안내합니다.',
     '- 상담이 무르익으면 "채널톡으로 상담 이어가기" 버튼으로 상담원과 이어서 이야기할 수 있다고 안내합니다.',
     '',
     '[대화 방식]',
     '- 항상 존댓말, "입니다/해요" 체를 씁니다. 반말 금지.',
     '- 한 번에 질문은 1~2개만. 답변은 짧고 차분하게, 보통 3~6문장.',
-    '- 고객의 첫 말에서 자전거, 슈즈, 부품 중 어떤 상담인지 파악하고, 애매하면 먼저 물어봅니다.',
+    '- 고객의 첫 말에서 자전거, 슈즈, 부품, 브랜드 맞춤 제작 중 어떤 상담인지 파악하고, 애매하면 먼저 물어봅니다.',
+    '- 바스티온: 어떤 라이딩을 원하는지(에어로 로드, 경량 로드, 그래블, 한정판), 원하는 그룹셋(시마노, 스램, 캄파놀로), 대략의 예산과 원하는 시점을 묻습니다. 신체 치수와 지오메트리는 쇼룸 상담과 디자인 포털에서 정한다고 안내합니다.',
     '- 자전거: 용도(출퇴근, 여행·투어링, 운동·로드, 도심 산책, 보관·휴대)와 주로 달리는 길을 먼저 묻고, 사이즈 이야기가 나오면 키(cm)와 가능하면 인심(다리 안쪽 길이, cm)을 묻습니다.',
     '- 슈즈: 발 길이(mm, 저녁에 벽에 뒤꿈치를 대고 종이 위에서 잰 값), 발볼이 넓은 편인지, 평소 운동화 사이즈와 브랜드, 용도(로드, 그래블, 투어링, 도심)와 지금 쓰는 페달·클릿(SPD, SPD-SL, 평페달 등)을 묻습니다. 양발 길이가 다르면 긴 쪽 기준이라고 안내합니다.',
     '- 부품: 어떤 자전거(브랜드, 모델, 연식)에 쓰려는지와, 관련 규격을 아는지 묻습니다. 예: BB 규격과 쉘 폭, 허브 OLD와 액슬 방식, 브레이크 마운트, 시트포스트 지름, 구동계 단수, 클램프 지름. 모르면 확인하는 방법을 짧게 알려 줍니다.',
@@ -144,6 +148,8 @@ function buildSystem_(mode, messages) {
     '- 규격 용어(BB, OLD, 스루액슬 등)의 일반적인 뜻은 설명해도 되지만, 특정 제품의 수치는 자료에서만 가져옵니다.',
     '- 재고, 할인, 정확한 견적, 입고일은 확답하지 말고 상담원 확인으로 넘깁니다.',
     '- 출고사례는 "비슷한 체형·용도의 고객 사례"로만 언급하고, 개인을 특정할 수 있는 표현은 쓰지 않습니다.',
+    '- [브랜드 사이트] 내용은 각 브랜드 코리아 사이트(예: bastioncycles.co.kr)에서 가져온 것입니다. 브랜드 모델, 공법, 제작 과정, 시작 가격은 이 자료에 있는 대로만 말하고, "부터"로 표기된 가격은 옵션에 따라 달라진다고 덧붙입니다.',
+    '- 쇼룸 주소, 운영시간, 연락처는 [안내] 탭이 기준입니다. 브랜드 사이트의 시간과 다르면 [안내] 탭을 따릅니다.',
     '- 다른 숍이나 브랜드를 깎아내리지 않습니다.',
     '- 부상, 통증, 의료 관련 질문에는 진단하지 말고 전문의 상담을 권합니다.',
     '- 자전거와 루비워크샵 상담과 무관한 요청은 정중히 상담 주제로 돌아옵니다.',
@@ -173,7 +179,7 @@ function buildSystem_(mode, messages) {
       '[지금 할 일]',
       '- 마지막 [요약 요청]에 따라 상담원에게 넘길 요약만 씁니다. 인사말이나 설명은 붙이지 않습니다.',
       '- 아래 형식 그대로, 알 수 없는 항목은 "미확인"으로 씁니다. 마크다운 굵게 표시는 쓰지 않습니다.',
-      '상담 분야: (자전거 / 슈즈 / 부품 중 해당하는 것)',
+      '상담 분야: (자전거 / 슈즈 / 부품 / 브랜드 맞춤 제작(바스티온 등) 중 해당하는 것)',
       '용도: ',
       '주행 환경: ',
       '키 / 인심: ',
@@ -227,6 +233,9 @@ function loadKnowledge_() {
     var h = head.filter(function (_, i) { return i !== showCol; }).join(' | ');
     parts.push('## ' + name + '\n' + h + '\n' + rows.join('\n'));
   });
+
+  var brandText = brandSiteKnowledge_(ss);
+  if (brandText) parts.push(brandText);
 
   var catalog = productCatalog_(ss);
   if (catalog) parts.push(catalog);
@@ -391,6 +400,10 @@ function setup() {
     }
   });
 
+  var sites = ss.getSheetByName('브랜드사이트');
+  if (sites.getLastRow() === 1) {
+    sites.getRange(2, 1, 1, 3).setValues([['바스티온 사이클', 'https://bastioncycles.co.kr/', 'Y']]);
+  }
   var guide = ss.getSheetByName('안내');
   if (guide.getLastRow() === 1) {
     guide.getRange(2, 1, 7, 2).setValues([
@@ -437,6 +450,7 @@ function onOpen() {
     .addSeparator()
     .addItem('루비워크샵 상품 동기화 (지금)', 'syncProducts')
     .addItem('상품 동기화 처음부터 다시', 'resyncProductsFromStart')
+    .addItem('브랜드 사이트 동기화 (지금)', 'syncBrandSites')
     .addItem('매일 자동 동기화 켜기', 'enableDailySync')
     .addToUi();
 }
@@ -491,6 +505,7 @@ function syncProducts() {
   try {
     var state = JSON.parse(props.getProperty('SHOP_SYNC') || 'null');
     if (!state) {
+      try { syncBrandSites(); } catch (e) { console.warn('brand sync fail: ' + e); }
       state = { ids: fetchSitemapIds_(), pos: 0 };
       if (!state.ids.length) throw new Error('사이트맵에서 상품을 찾지 못했습니다.');
       props.setProperty('SHOP_SYNC', JSON.stringify(state));
@@ -775,9 +790,9 @@ function htmlToText_(h) {
   return decodeEntities_(String(h)
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, '')
     .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/th>/gi, ': ')
+    .replace(/<\/(th|dt)>/gi, ': ')
     .replace(/<\/td>/gi, ' ')
-    .replace(/<\/(p|div|tr|li|h\d|table|ul|ol)>/gi, '\n')
+    .replace(/<\/(p|div|tr|li|h\d|table|ul|ol|dd|dl|section)>/gi, '\n')
     .replace(/<[^>]+>/g, ''))
     .replace(/[ \t ]+/g, ' ')
     .replace(/ *\n */g, '\n')
@@ -791,4 +806,74 @@ function decodeEntities_(s) {
     .replace(/&#x([0-9a-f]+);/gi, function (_, h) { return String.fromCharCode(parseInt(h, 16)); })
     .replace(/&#(\d+);/g, function (_, d) { return String.fromCharCode(parseInt(d, 10)); })
     .replace(/&([a-z]+);/gi, function (m, n) { return named.hasOwnProperty(n.toLowerCase()) ? named[n.toLowerCase()] : m; });
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// 브랜드 사이트 동기화
+//   '브랜드사이트' 탭에 적힌 사이트(예: bastioncycles.co.kr)를 읽어
+//   <section id="..."> 단위로 글을 뽑아 '브랜드사이트 내용' 탭에 저장합니다.
+//   이 내용은 [브랜드 사이트]로 AI 자료에 항상 들어갑니다.
+// ════════════════════════════════════════════════════════════════
+var BRAND_SKIP_SECTIONS = /^(gallery|lb|menu|dots|cue|bars|hd)$/i;
+var BRAND_SECTION_CHARS = 6000;
+
+function syncBrandSites() {
+  var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
+  var list = ss.getSheetByName('브랜드사이트');
+  var out = ss.getSheetByName('브랜드사이트 내용') || ss.insertSheet('브랜드사이트 내용');
+  if (out.getLastRow() === 0) {
+    out.getRange(1, 1, 1, SHEETS['브랜드사이트 내용'].length).setValues([SHEETS['브랜드사이트 내용']]).setFontWeight('bold');
+    out.setFrozenRows(1);
+  }
+  if (!list || list.getLastRow() < 2) return;
+
+  var sites = list.getRange(2, 1, list.getLastRow() - 1, 3).getDisplayValues();
+  var stamp = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
+  var keep = {}, rows = [];
+  sites.forEach(function (site, i) {
+    var brand = String(site[0]).trim(), url = String(site[1]).trim();
+    if (!brand || !/^https:\/\//.test(url) || String(site[2]).trim().toUpperCase() === 'N') return;
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true });
+    if (resp.getResponseCode() !== 200) { console.warn(brand + ' ' + resp.getResponseCode()); keep[brand] = true; return; }
+    parseBrandSite_(resp.getContentText()).forEach(function (sec) {
+      rows.push([brand, sec.id, sec.text, url.replace(/#.*$/, '') + '#' + sec.id, stamp]);
+    });
+    list.getRange(i + 2, 4).setValue(stamp);
+  });
+
+  // 실패한 사이트(keep)는 예전 내용을 그대로 두고, 나머지는 새 내용으로 바꿉니다.
+  var old = out.getLastRow() > 1 ? out.getRange(2, 1, out.getLastRow() - 1, 5).getDisplayValues() : [];
+  var merged = old.filter(function (r) { return keep[r[0]]; }).concat(rows);
+  if (out.getLastRow() > 1) out.getRange(2, 1, out.getLastRow() - 1, 5).clearContent();
+  if (merged.length) out.getRange(2, 1, merged.length, 5).setValues(merged);
+  clearCache();
+}
+
+function parseBrandSite_(html) {
+  var body = String(html).replace(/<(script|style|noscript|svg)[\s\S]*?<\/\1>/gi, '');
+  var secs = [], m, re = /<section\b[^>]*\bid=["']([^"']+)["'][^>]*>([\s\S]*?)<\/section>/gi;
+  while ((m = re.exec(body))) {
+    if (BRAND_SKIP_SECTIONS.test(m[1])) continue;
+    var text = htmlToText_(m[2]);
+    if (text.length > 30) secs.push({ id: m[1], text: text.slice(0, BRAND_SECTION_CHARS) });
+  }
+  if (!secs.length) {
+    var t = htmlToText_((body.match(/<body[^>]*>([\s\S]*)<\/body>/i) || [])[1] || body);
+    if (t) secs.push({ id: 'page', text: t.slice(0, BRAND_SECTION_CHARS * 2) });
+  }
+  return secs;
+}
+
+function brandSiteKnowledge_(ss) {
+  var sh = ss.getSheetByName('브랜드사이트 내용');
+  if (!sh || sh.getLastRow() < 2) return '';
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getDisplayValues();
+  var byBrand = {};
+  rows.forEach(function (r) {
+    if (!r[0] || !r[2]) return;
+    (byBrand[r[0]] = byBrand[r[0]] || []).push('### ' + r[1] + ' (' + r[3] + ')\n' + r[2]);
+  });
+  var out = Object.keys(byBrand).map(function (b) { return '## [브랜드 사이트] ' + b + '\n' + byBrand[b].join('\n\n'); });
+  return out.join('\n\n');
 }
