@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 자전거 상담 | Rubi Workshop 루비워크샵</title>
+<meta name="description" content="루비워크샵 AI 자전거 상담. 몰튼, 크러스트, 바스티온, 팔리 등 취급 자전거의 모델과 사이즈, QUOC 슈즈 사이즈, 부품 스펙과 규격을 안내하고 채널톡 상담원과 바로 이어 드립니다.">
+<link rel="canonical" href="https://consult.rubiworkshop.com/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Rubi Workshop">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="AI 자전거 상담 | Rubi Workshop">
+<meta property="og:description" content="자전거 모델과 사이즈, 슈즈 사이즈, 부품 스펙까지 물어보면 안내하고 상담원과 바로 이어 드립니다.">
+<meta property="og:url" content="https://consult.rubiworkshop.com/">
+<meta property="og:image" content="https://consult.rubiworkshop.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rubi Workshop AI 자전거 상담">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI 자전거 상담 | Rubi Workshop">
+<meta name="twitter:description" content="자전거 모델과 사이즈, 슈즈 사이즈, 부품 스펙까지 안내합니다.">
+<meta name="twitter:image" content="https://consult.rubiworkshop.com/og.png">
+<meta name="twitter:image:alt" content="Rubi Workshop AI 자전거 상담">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://consult.rubiworkshop.com/#page",
+      "url": "https://consult.rubiworkshop.com/",
+      "name": "AI 자전거 상담 | Rubi Workshop",
+      "inLanguage": "ko-KR",
+      "description": "루비워크샵 AI 자전거 상담. 자전거 모델과 사이즈, 슈즈 사이즈, 부품 스펙과 규격을 안내합니다.",
+      "isPartOf": { "@type": "WebSite", "name": "Rubi Workshop", "url": "https://rubiworkshop.com/" },
+      "about": { "@id": "https://rubiworkshop.com/#store" }
+    },
+    {
+      "@type": "BikeStore",
+      "@id": "https://rubiworkshop.com/#store",
+      "name": "루비워크샵 Rubi Workshop",
+      "url": "https://rubiworkshop.com/",
+      "telephone": "+82-1551-5320",
+      "foundingDate": "2015",
+      "slogan": "Ride Tastefully",
+      "sameAs": ["https://www.instagram.com/rubi.workshop"],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "신반포로 320 루비빌딩",
+        "addressLocality": "서초구",
+        "addressRegion": "서울특별시",
+        "addressCountry": "KR"
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "12:00", "closes": "19:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "10:00", "closes": "15:30" }
+      ]
+    }
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+/* 영문은 Pretendard Regular(라틴 범위만), 한글은 에스코어 드림 4 Regular. 굵기는 모두 400 */
+@font-face {
+  font-family: "RubiLatin";
+  src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2190-21FF, U+2212, U+2215;
+}
+@font-face {
+  font-family: "SCoreDream";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff") format("woff");
+  font-weight: 400; font-display: swap;
+}
+:root {
+  --ink: #111;
+  --sub: rgba(17,17,17,.52);
+  --faint: rgba(17,17,17,.34);
+  --line: rgba(17,17,17,.1);
+  --wash: #f4f4f2;
+  --bg: #fff;
+  --max: 760px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "RubiLatin", "SCoreDream", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-weight: 400; font-size: 15px; line-height: 1.7; letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+b, strong, h1, h2, h3, button { font-weight: 400; }
+a { color: inherit; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+/* 헤더 */
+.top { border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.brand { font-size: 15px; text-decoration: none; letter-spacing: .01em; }
+.top nav a { font-size: 13px; color: var(--sub); text-decoration: none; margin-left: 20px; }
+.top nav a:hover { color: var(--ink); }
+
+/* 히어로 */
+.hero { padding-top: 56px; padding-bottom: 28px; }
+.eyebrow { font-size: 12px; color: var(--sub); letter-spacing: .04em; margin: 0 0 14px; }
+.title { font-size: 28px; line-height: 1.3; margin: 0; }
+.title-ko { display: block; font-size: 16px; color: var(--sub); margin-top: 6px; }
+.lead { font-size: 15px; color: var(--sub); margin: 20px 0 0; max-width: 560px; }
+
+/* 상담 영역 */
+.demo-note { display: none; font-size: 13px; color: var(--sub); background: var(--wash); padding: 10px 14px; border-radius: 10px; margin: 0 0 16px; }
+.demo .demo-note { display: block; }
+
+.log { display: flex; flex-direction: column; gap: 18px; padding: 8px 0 24px; min-height: 120px; }
+.msg { max-width: 88%; font-size: 15px; white-space: normal; word-break: keep-all; overflow-wrap: anywhere; }
+.msg p { margin: 0 0 8px; }
+.msg p:last-child { margin-bottom: 0; }
+.msg ul { margin: 4px 0 8px; padding-left: 18px; }
+.msg li { margin: 2px 0; }
+.msg strong { color: var(--ink); box-shadow: inset 0 -0.42em 0 rgba(17,17,17,.07); }
+.msg.ai { align-self: flex-start; }
+.msg.ai .who { font-size: 12px; color: var(--faint); margin-bottom: 4px; letter-spacing: .03em; }
+.msg.me { align-self: flex-end; background: var(--wash); padding: 10px 16px; border-radius: 16px 16px 4px 16px; }
+.typing { display: inline-flex; gap: 5px; padding: 8px 0; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); animation: blink 1.2s infinite; }
+.typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* 추천 카드 */
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 14px; }
+.pick { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; text-decoration: none; transition: border-color .2s; }
+a.pick:hover { border-color: rgba(17,17,17,.35); }
+.pick .b { font-size: 12px; color: var(--sub); letter-spacing: .02em; }
+.pick .m { font-size: 15px; }
+.pick .s { font-size: 13px; color: var(--sub); }
+.pick .r { font-size: 14px; color: var(--sub); line-height: 1.6; margin-top: 4px; }
+.pick .go { font-size: 12px; color: var(--faint); margin-top: auto; padding-top: 8px; }
+
+/* 시작 질문 */
+.starters { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 20px; }
+.chip { font: inherit; font-size: 14px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; transition: border-color .2s; }
+.chip:hover { border-color: rgba(17,17,17,.4); }
+
+/* 입력창 */
+.dock { position: sticky; bottom: 0; background: linear-gradient(to top, #fff 78%, rgba(255,255,255,0)); padding: 16px 0 calc(16px + env(safe-area-inset-bottom)); }
+.composer { display: flex; align-items: flex-end; gap: 8px; border: 1px solid rgba(17,17,17,.2); border-radius: 18px; padding: 8px 8px 8px 16px; background: #fff; }
+.composer:focus-within { border-color: var(--ink); }
+.composer textarea { flex: 1; border: 0; outline: 0; resize: none; font: inherit; font-size: 15px; line-height: 1.6; padding: 6px 0; max-height: 140px; background: transparent; color: var(--ink); }
+.send { font: inherit; font-size: 14px; border: 0; border-radius: 12px; background: var(--ink); color: #fff; padding: 8px 16px; cursor: pointer; }
+.send:disabled { background: rgba(17,17,17,.2); cursor: default; }
+.dock-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; }
+.handoff { font: inherit; font-size: 14px; border: 1px solid var(--ink); background: #fff; color: var(--ink); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+.handoff:disabled { border-color: var(--line); color: var(--faint); cursor: default; }
+.reset { font: inherit; font-size: 13px; background: none; border: 0; color: var(--sub); cursor: pointer; padding: 6px 0; }
+.counter { font-size: 12px; color: var(--faint); }
+.notice { font-size: 13px; color: var(--sub); margin: 8px 0 0; min-height: 0; }
+.notice:empty { display: none; }
+
+/* 쇼룸 안내 */
+.info { margin-top: 48px; padding-top: 40px; padding-bottom: 24px; }
+.info::before { content: ""; display: block; border-top: 1px solid var(--line); margin: -40px 0 40px; }
+.info h2 { font-size: 18px; margin: 0; }
+.info h2 span { display: block; font-size: 16px; color: var(--sub); margin-top: 2px; }
+.info dl { display: grid; grid-template-columns: 120px 1fr; gap: 10px 16px; margin: 24px 0 0; font-size: 14px; }
+.info dt { color: var(--sub); }
+.info dd { margin: 0; }
+.steps { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.steps li { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--sub); }
+.steps li span { display: block; font-size: 12px; color: var(--faint); margin-bottom: 6px; letter-spacing: .03em; }
+.steps li b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 2px; }
+footer.wrap { font-size: 12px; color: var(--faint); padding-top: 40px; padding-bottom: 48px; line-height: 1.7; }
+
+/* 요약 창 (채널톡을 못 띄울 때) */
+dialog { border: 0; border-radius: 18px; padding: 24px; max-width: 520px; width: calc(100% - 32px); }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog h3 { font-size: 18px; margin: 0 0 8px; }
+dialog p { font-size: 14px; color: var(--sub); margin: 0 0 12px; }
+dialog pre { white-space: pre-wrap; font: inherit; font-size: 14px; background: var(--wash); border-radius: 12px; padding: 14px; margin: 0 0 16px; max-height: 50vh; overflow: auto; }
+dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .wrap { padding: 0 18px; }
+  .hero { padding-top: 40px; padding-bottom: 20px; }
+  .title { font-size: 24px; }
+  .msg { max-width: 94%; }
+  .info dl { grid-template-columns: 112px 1fr; gap: 10px 12px; }
+  .steps { grid-template-columns: 1fr; }
+  .top nav a:not(:last-child) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="https://rubiworkshop.com/">Rubi Workshop</a>
+    <nav aria-label="루비워크샵 바로가기">
+      <a href="https://rubiworkshop.com/models">Models</a>
+      <a href="https://rubiworkshop.com/showroom">Showroom</a>
+      <a href="https://rubiworkshop.com/">Home</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <p class="eyebrow">AI Consulting</p>
+    <h1 class="title">Find Your Ride<span class="title-ko">AI 자전거 상담</span></h1>
+    <p class="lead">어디를, 어떻게 달리고 싶은지 편하게 이야기해 주세요. 루비워크샵이 다루는 자전거의 모델과 사이즈, 슈즈 사이즈, 부품 스펙과 규격까지 안내하고, 이어서 상담원과 채널톡으로 바로 연결해 드립니다.</p>
+  </section>
+
+  <section class="wrap" id="consult" aria-label="AI 자전거 상담">
+    <p class="demo-note" id="demoNote">미리보기 모드입니다. 실제 AI 대신 예시 답변이 나옵니다.</p>
+
+    <noscript>
+      <p>AI 상담은 자바스크립트가 켜져 있어야 이용할 수 있습니다. 전화 1551-5320 또는 루비워크샵 홈페이지(rubiworkshop.com)의 채널톡으로 상담을 신청해 주세요.</p>
+    </noscript>
+
+    <div class="log" id="log" role="log" aria-live="polite"></div>
+
+    <div class="starters" id="starters">
+      <button class="chip" type="button">출퇴근용 미니벨로를 찾고 있어요</button>
+      <button class="chip" type="button">장거리 여행용 투어링 자전거가 궁금해요</button>
+      <button class="chip" type="button">몰튼과 크러스트 중에 고민 중이에요</button>
+      <button class="chip" type="button">제 키에 맞는 사이즈를 알고 싶어요</button>
+      <button class="chip" type="button">QUOC 슈즈 사이즈를 고르고 싶어요</button>
+      <button class="chip" type="button">제 자전거에 맞는 부품인지 궁금해요</button>
+    </div>
+
+    <div class="dock">
+      <form class="composer" id="form" autocomplete="off">
+        <label for="input" class="sr-only" style="position:absolute;left:-9999px">상담 내용 입력</label>
+        <textarea id="input" rows="1" maxlength="800" placeholder="예: 주말에 한강을 달리고 가끔 지하철에 싣고 싶어요"></textarea>
+        <button class="send" id="send" type="submit" disabled>보내기</button>
+      </form>
+      <p class="notice" id="notice"></p>
+      <div class="dock-row">
+        <button class="handoff" id="handoff" type="button" disabled>채널톡으로 상담 이어가기</button>
+        <span>
+          <span class="counter" id="counter"></span>
+          <button class="reset" id="reset" type="button" hidden>새 상담</button>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="info wrap" aria-labelledby="infoTitle">
+    <h2 id="infoTitle">Showroom<span>쇼룸 방문 상담</span></h2>
+    <ol class="steps">
+      <li><span>Step 1</span><b>AI 상담</b>자전거와 슈즈의 사이즈, 부품 규격까지 방향을 좁힙니다.</li>
+      <li><span>Step 2</span><b>상담원 연결</b>요약이 채널톡으로 넘어가 상담원이 이어서 안내합니다.</li>
+      <li><span>Step 3</span><b>쇼룸 피팅</b>반포 쇼룸에서 직접 타 보고 신어 보며 사이즈와 빌드를 확정합니다.</li>
+    </ol>
+    <dl>
+      <dt>주소</dt><dd>서울시 서초구 신반포로 320 루비빌딩</dd>
+      <dt>운영시간</dt><dd>월~금 12:00~19:00, 토요일 10:00~15:30</dd>
+      <dt>커스텀 빌드 문의</dt><dd><a href="tel:15515320">1551-5320</a></dd>
+      <dt>Instagram</dt><dd><a href="https://www.instagram.com/rubi.workshop" rel="noopener">@rubi.workshop</a></dd>
+    </dl>
+  </section>
+</main>
+
+<footer class="wrap">
+  AI 상담은 참고용 안내이며 가격, 재고, 사이즈와 빌드, 부품 호환은 상담원 확인과 쇼룸 피팅으로 확정됩니다. 상담 품질 개선과 상담원 연결을 위해 대화 내용이 저장되니 전화번호, 주소 같은 개인정보는 입력하지 말아 주세요.<br>
+  © Rubi Workshop. Ride Tastefully.
+</footer>
+
+<dialog id="sheet">
+  <h3>상담 요약</h3>
+  <p id="sheetMsg">아래 요약을 복사해 채널톡이나 전화 상담 때 알려 주시면 이어서 안내해 드립니다.</p>
+  <pre id="sheetText"></pre>
+  <div class="row">
+    <button class="handoff" type="button" id="sheetCopy">복사하기</button>
+    <button class="send" type="button" id="sheetClose">닫기</button>
+  </div>
+</dialog>
+
+<script>
+/* ───────── 설정 ───────── */
+var CONFIG = {
+  // Apps Script 웹앱 배포 주소 (…/exec). 비워 두면 미리보기 모드로 동작합니다.
+  API_URL: "",
+  // 이 페이지를 단독 사이트로 띄울 때 채널톡 플러그인 키. 아임웹처럼 이미 채널톡이 깔린 곳에 넣으면 비워 둡니다.
+  CHANNEL_PLUGIN_KEY: "",
+  // 채널톡 연결 버튼이 켜지는 최소 대화 수
+  HANDOFF_AFTER: 2,
+  MAX_TURNS: 16
+};
+
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var log = $("log"), form = $("form"), input = $("input"), sendBtn = $("send");
+  var handoffBtn = $("handoff"), resetBtn = $("reset"), notice = $("notice"), counter = $("counter");
+  var starters = $("starters");
+  var DEMO = !CONFIG.API_URL;
+  if (DEMO) document.body.classList.add("demo");
+
+  var STORE_KEY = "rubi-ai-consult";
+  var state = load() || { sessionId: uid(), messages: [], picks: {} };
+  var busy = false;
+
+  /* ───────── 채널톡 ───────── */
+  if (CONFIG.CHANNEL_PLUGIN_KEY && !window.ChannelIO) {
+    (function(){var w=window;var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement("script");s.async=true;s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";var x=document.getElementsByTagName("script")[0];if(x&&x.parentNode){x.parentNode.insertBefore(s,x);}else{document.head.appendChild(s);}}if(document.readyState==="complete"){l();}else{w.addEventListener("DOMContentLoaded",l);w.addEventListener("load",l);}})();
+    window.ChannelIO("boot", { pluginKey: CONFIG.CHANNEL_PLUGIN_KEY });
+  }
+
+  /* ───────── 그리기 ───────── */
+  function render() {
+    log.innerHTML = "";
+    if (!state.messages.length) {
+      addBubble("ai", "안녕하세요, 루비워크샵 AI 상담입니다.\n자전거 고르기, 슈즈 사이즈, 부품 스펙과 규격까지 편하게 물어봐 주세요. 자전거라면 주로 어디를, 어떤 용도로 타실지부터 들려주세요.");
+    }
+    state.messages.forEach(function (m, i) {
+      if (m.role === "user" && m.content.indexOf("[요약 요청]") === 0) return;
+      addBubble(m.role === "user" ? "me" : "ai", m.content, state.picks[i]);
+    });
+    syncUi();
+  }
+
+  function addBubble(kind, text, picks) {
+    var el = document.createElement("div");
+    el.className = "msg " + kind;
+    if (kind === "ai") {
+      var who = document.createElement("div");
+      who.className = "who"; who.textContent = "Rubi AI";
+      el.appendChild(who);
+      var body = document.createElement("div");
+      body.innerHTML = format(text);
+      el.appendChild(body);
+      if (picks && picks.length) el.appendChild(pickCards(picks));
+    } else {
+      el.textContent = text;
+    }
+    log.appendChild(el);
+    return el;
+  }
+
+  function pickCards(picks) {
+    var wrap = document.createElement("div");
+    wrap.className = "picks";
+    picks.forEach(function (p) {
+      var card = document.createElement(p.url ? "a" : "div");
+      card.className = "pick";
+      if (p.url) { card.href = p.url; card.target = "_blank"; card.rel = "noopener"; }
+      card.innerHTML =
+        '<span class="b"></span><span class="m"></span>' +
+        (p.size ? '<span class="s"></span>' : "") +
+        (p.reason ? '<span class="r"></span>' : "") +
+        (p.url ? '<span class="go">자세히 보기</span>' : "");
+      card.querySelector(".b").textContent = (p.kind ? p.kind + " · " : "") + (p.brand || "");
+      card.querySelector(".m").textContent = p.model || "";
+      if (p.size) card.querySelector(".s").textContent = p.size;
+      if (p.reason) card.querySelector(".r").textContent = p.reason;
+      wrap.appendChild(card);
+    });
+    return wrap;
+  }
+
+  // **굵게**, "- " 목록, 줄바꿈만 허용하는 안전한 서식
+  function format(text) {
+    var esc = String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var lines = esc.split(/\n/), html = "", list = false, para = [];
+    function flush() { if (para.length) { html += "<p>" + para.join("<br>") + "</p>"; para = []; } }
+    lines.forEach(function (line) {
+      var t = line.trim();
+      if (/^[-•]\s+/.test(t)) {
+        flush();
+        if (!list) { html += "<ul>"; list = true; }
+        html += "<li>" + t.replace(/^[-•]\s+/, "") + "</li>";
+      } else {
+        if (list) { html += "</ul>"; list = false; }
+        if (t === "") flush(); else para.push(t);
+      }
+    });
+    flush(); if (list) html += "</ul>";
+    return html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+
+  function typing() {
+    var el = document.createElement("div");
+    el.className = "msg ai";
+    el.innerHTML = '<div class="who">Rubi AI</div><span class="typing" aria-label="답변 작성 중"><i></i><i></i><i></i></span>';
+    log.appendChild(el);
+    scrollEnd();
+    return el;
+  }
+
+  function userTurns() { return state.messages.filter(function (m) { return m.role === "user" && m.content.indexOf("[요약 요청]") !== 0; }).length; }
+
+  function syncUi() {
+    var n = userTurns();
+    starters.hidden = n > 0;
+    resetBtn.hidden = n === 0;
+    sendBtn.disabled = busy || !input.value.trim() || n >= CONFIG.MAX_TURNS;
+    input.disabled = n >= CONFIG.MAX_TURNS;
+    handoffBtn.disabled = busy || n < CONFIG.HANDOFF_AFTER;
+    counter.textContent = n ? n + " / " + CONFIG.MAX_TURNS : "";
+    if (n >= CONFIG.MAX_TURNS) setNotice("상담이 길어졌어요. 채널톡으로 상담원과 이어서 이야기해 주세요.");
+  }
+
+  function setNotice(t) { notice.textContent = t || ""; }
+  function scrollEnd() { var d = document.querySelector(".dock"); (d || log).scrollIntoView({ block: "end", behavior: "smooth" }); }
+
+  /* ───────── 보내기 ───────── */
+  function send(text) {
+    text = String(text || "").trim();
+    if (!text || busy) return;
+    if (userTurns() >= CONFIG.MAX_TURNS) return;
+    setNotice("");
+    busy = true;
+    state.messages.push({ role: "user", content: text });
+    input.value = ""; autosize();
+    render();
+    var t = typing();
+
+    request("chat", { messages: state.messages }).then(function (res) {
+      t.remove();
+      if (!res.ok) throw res;
+      state.messages.push({ role: "assistant", content: res.reply });
+      if (res.picks && res.picks.length) state.picks[state.messages.length - 1] = res.picks;
+      save(); busy = false; render(); scrollEnd();
+    }).catch(function (err) {
+      t.remove();
+      state.messages.pop(); // 실패한 질문은 대화에서 빼고 입력창에 돌려놓습니다
+      busy = false; render();
+      input.value = text; autosize(); syncUi();
+      setNotice(errorText(err && err.error));
+    });
+  }
+
+  function errorText(code) {
+    switch (code) {
+      case "daily_limit": return "오늘은 AI 상담 이용이 많아 잠시 쉬고 있어요. 채널톡이나 1551-5320으로 연락 주세요.";
+      case "turn_limit": return "상담이 길어졌어요. 채널톡으로 상담원과 이어서 이야기해 주세요.";
+      case "too_long": return "조금만 짧게 나눠서 보내 주세요.";
+      case "not_configured": return "AI 상담 준비 중이에요. 채널톡이나 1551-5320으로 연락 주세요.";
+      default: return "답변을 불러오지 못했어요. 잠시 후 다시 보내 주세요.";
+    }
+  }
+
+  function request(action, payload) {
+    if (DEMO) return demo(action, payload);
+    var body = JSON.stringify(Object.assign({ action: action, sessionId: state.sessionId }, payload));
+    // text/plain으로 보내야 Apps Script 웹앱이 CORS 사전 요청 없이 받습니다
+    return fetch(CONFIG.API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: body })
+      .then(function (r) { return r.json(); })
+      .catch(function () { return { ok: false, error: "network" }; });
+  }
+
+  /* ───────── 채널톡으로 넘기기 ───────── */
+  function handoff() {
+    if (busy) return;
+    busy = true; syncUi();
+    handoffBtn.textContent = "요약 정리 중…";
+    var msgs = state.messages.slice();
+    if (msgs.length && msgs[msgs.length - 1].role === "user") msgs.pop();
+
+    request("summary", { messages: msgs }).then(function (res) {
+      busy = false; handoffBtn.textContent = "채널톡으로 상담 이어가기"; syncUi();
+      var summary = res && res.ok ? res.summary : fallbackSummary();
+      openChannel(summary);
+    });
+  }
+
+  function fallbackSummary() {
+    var lines = state.messages.filter(function (m) { return m.role === "user"; })
+      .map(function (m) { return "- " + m.content; });
+    return "[AI 상담 내용] 상담번호 " + state.sessionId.slice(0, 8) + "\n" + lines.join("\n");
+  }
+
+  function openChannel(summary) {
+    if (window.ChannelIO) {
+      try { window.ChannelIO("openChat", undefined, summary); return; } catch (e) {}
+    }
+    $("sheetText").textContent = summary;
+    var dlg = $("sheet");
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+  }
+
+  $("sheetCopy").addEventListener("click", function () {
+    var text = $("sheetText").textContent, btn = this;
+    var done = function () { btn.textContent = "복사했어요"; setTimeout(function () { btn.textContent = "복사하기"; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done); else done();
+  });
+  $("sheetClose").addEventListener("click", function () { var d = $("sheet"); d.close ? d.close() : d.removeAttribute("open"); });
+
+  /* ───────── 이벤트 ───────── */
+  form.addEventListener("submit", function (e) { e.preventDefault(); send(input.value); });
+  input.addEventListener("input", function () { autosize(); syncUi(); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value); }
+  });
+  starters.addEventListener("click", function (e) { if (e.target.classList.contains("chip")) send(e.target.textContent); });
+  handoffBtn.addEventListener("click", handoff);
+  resetBtn.addEventListener("click", function () {
+    state = { sessionId: uid(), messages: [], picks: {} };
+    save(); setNotice(""); render(); input.focus();
+  });
+
+  function autosize() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px"; }
+
+  /* ───────── 저장 (새로고침해도 대화 유지) ───────── */
+  function save() { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+  function load() { try { var s = JSON.parse(sessionStorage.getItem(STORE_KEY)); return s && s.messages ? s : null; } catch (e) { return null; } }
+  function uid() {
+    try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+
+  /* ───────── 미리보기 모드 (API_URL이 비어 있을 때) ───────── */
+  function demo(action, payload) {
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        if (action === "summary") {
+          var said = payload.messages.filter(function (m) { return m.role === "user"; }).map(function (m) { return m.content; });
+          return resolve({ ok: true, summary:
+            "[AI 상담 요약] 상담번호 " + state.sessionId.slice(0, 8) + "\n" +
+            "상담 분야: 미리보기 예시\n" +
+            "용도: " + (said[0] || "미확인") + "\n" +
+            "주행 환경: " + (said[1] || "미확인") + "\n" +
+            "키 / 인심: " + (said[2] || "미확인") + "\n" +
+            "예산: 미확인\n" +
+            "관심 모델·제품: 미리보기 예시\n" +
+            "추천한 모델·제품과 사이즈: 미리보기 예시\n" +
+            "고객 궁금증: 휴대성, 승차감\n" +
+            "상담원 확인 필요: 재고와 리드타임, 쇼룸 피팅 일정" });
+        }
+        var users = payload.messages.filter(function (m) { return m.role === "user"; });
+        var n = users.length, first = users[0].content;
+        var topic = /슈즈|신발|클릿|QUOC|쿽/i.test(first) ? "shoe" : (/부품|규격|호환|스펙|BB|허브|크랭크|페달/i.test(first) ? "part" : "bike");
+        var flows = {
+          bike: [
+            "좋아요, 말씀해 주셔서 감사해요.\n주로 달리는 길은 어떤가요? 평지 위주인지, 언덕이 있는지도 알려 주세요.\n그리고 지하철이나 차에 실어야 할 일이 있는지도 궁금해요.",
+            "사이즈 방향을 잡기 위해 **키(cm)**와 가능하면 **인심(다리 안쪽 길이)**을 알려 주세요.\n예산은 대략적인 범위로 말씀해 주셔도 충분해요.",
+            { reply: "말씀해 주신 내용이라면 이렇게 좁혀 볼 수 있어요.\n- 휴대와 승차감을 함께 원하시면 분리형 미니벨로\n- 가볍고 경쾌한 주행이 우선이면 크로몰리 미니벨로\n최종 사이즈와 빌드는 쇼룸에서 직접 타 보고 정하는 걸 권해 드려요. 아래 버튼으로 상담원과 바로 이어서 이야기하실 수 있어요.",
+              picks: [
+                { kind: "자전거", brand: "Moulton", model: "SST Wide", size: "사이즈 One Size", reason: "분리형 프레임과 서스펜션으로 휴대성과 승차감을 함께 챙길 수 있어요.", url: "https://rubiworkshop.com/models" },
+                { kind: "자전거", brand: "Velo Orange", model: "Neutrino", size: "", reason: "가볍게 도심을 달리기 좋은 크로몰리 미니벨로예요.", url: "" } ] }
+          ],
+          shoe: [
+            "슈즈 사이즈를 같이 찾아볼게요.\n**발 길이(mm)**를 알고 계신가요? 저녁에 종이 위에 서서 뒤꿈치를 벽에 대고 가장 긴 발가락 끝까지 재면 돼요. 발볼이 넓은 편인지도 알려 주세요.",
+            "감사해요. 주로 어떤 라이딩에 신으실지, 지금 쓰는 **페달과 클릿**(SPD, SPD-SL, 평페달 등)도 알려 주세요.",
+            { reply: "말씀해 주신 발 길이와 용도라면 이 정도로 보시면 돼요.\n- 발 길이가 사이즈 경계에 걸리면 반 사이즈 큰 쪽을 먼저 시착해 보시길 권해요\n- 발볼이 넓은 편이면 쇼룸에서 두 사이즈를 같이 신어 보는 게 가장 정확해요\n클릿 위치 세팅도 쇼룸에서 함께 봐 드릴 수 있어요.",
+              picks: [
+                { kind: "슈즈", brand: "QUOC", model: "M3 Air", size: "EU 42", reason: "통기성이 좋아 여름 로드 라이딩에 잘 맞아요.", url: "https://rubiworkshop.com/quoc" },
+                { kind: "슈즈", brand: "QUOC", model: "Gran Tourer III", size: "EU 42", reason: "걷기 편한 밑창이라 투어링과 도심에 어울려요.", url: "https://rubiworkshop.com/quoc" } ] }
+          ],
+          part: [
+            "부품 규격을 같이 확인해 볼게요.\n어떤 자전거(브랜드, 모델, 연식)에 쓰실 예정인가요? 바꾸려는 부품이 무엇인지도 알려 주세요.",
+            "감사해요. 혹시 **BB 규격**(BSA, T47 등)이나 쉘 폭을 알고 계신가요? 모르시면 프레임 사진이나 지금 달린 BB 모델명을 알려 주셔도 돼요.",
+            { reply: "말씀해 주신 규격 기준으로는 아래 제품이 자료상 맞는 규격으로 보여요.\n- 스핀들 지름과 크랭크 규격이 함께 맞아야 해요\n최종 호환은 상담원이 프레임 정보로 한 번 더 확인해 드릴게요.",
+              picks: [
+                { kind: "부품", brand: "White Industries", model: "T47 Bottom Bracket", size: "규격 T47", reason: "말씀하신 프레임 규격과 맞는 내장형 BB예요.", url: "" },
+                { kind: "부품", brand: "Paul Component", model: "Klamper", size: "포스트 마운트", reason: "기계식 디스크 브레이크로 정비가 쉬워요.", url: "" } ] }
+          ]
+        };
+        var step = flows[topic][Math.min(n, 3) - 1];
+        return resolve(typeof step === "string" ? { ok: true, reply: step } : { ok: true, reply: step.reply, picks: step.picks });
+      }, 900);
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
