@@ -65,158 +65,195 @@
 </script>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://fastly.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://cdn.imweb.me" crossorigin>
 <style>
-/* 영문은 Pretendard Regular(라틴 범위만), 한글은 에스코어 드림 4 Regular. 굵기는 모두 400 */
+/* 루비워크샵 홈페이지 톤: 영문 Pretendard Regular, 한글 에스코어 드림 4 Regular, 굵기 400 고정, 위계는 크기와 회색으로만 */
 @font-face {
-  font-family: "RubiLatin";
+  font-family: "RW Latin";
   src: url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-Regular.woff2") format("woff2");
   font-weight: 400; font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2190-21FF, U+2212, U+2215;
 }
 @font-face {
-  font-family: "SCoreDream";
-  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff") format("woff");
+  font-family: "RW Ko";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff") format("woff");
   font-weight: 400; font-display: swap;
 }
 :root {
   --ink: #111;
-  --sub: rgba(17,17,17,.52);
-  --faint: rgba(17,17,17,.34);
-  --line: rgba(17,17,17,.1);
-  --wash: #f4f4f2;
-  --bg: #fff;
-  --max: 760px;
+  --body: #434343;
+  --sub: rgba(17,17,17,.55);
+  --faint: rgba(17,17,17,.35);
+  --line: rgba(17,17,17,.3);
+  --hair: rgba(17,17,17,.12);
+  --panel: #f4f4f2;
+  --hero: #ecebe8;
+  --max: 1200px;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font-family: "RubiLatin", "SCoreDream", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  font-weight: 400; font-size: 15px; line-height: 1.7; letter-spacing: -0.005em;
+  margin: 0; background: #fff; color: var(--body);
+  font-family: "RW Latin", "RW Ko", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-weight: 400; font-size: 15px; line-height: 26px; letter-spacing: -0.3px;
+  word-break: keep-all; overflow-wrap: anywhere;
   -webkit-font-smoothing: antialiased;
 }
 b, strong, h1, h2, h3, button { font-weight: 400; }
 a { color: inherit; }
-.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+.wrap { max-width: calc(var(--max) + 48px); margin: 0 auto; padding-left: 24px; padding-right: 24px; }
 
-/* 헤더 */
-.top { border-bottom: 1px solid var(--line); }
-.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-.brand { font-size: 15px; text-decoration: none; letter-spacing: .01em; }
-.top nav a { font-size: 13px; color: var(--sub); text-decoration: none; margin-left: 20px; }
-.top nav a:hover { color: var(--ink); }
+/* 헤더: 가운데 로고, 양쪽 작은 링크 */
+.top { position: sticky; top: 0; z-index: 20; background: #fff; }
+.top .bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 64px; padding: 0 24px; }
+.top .logo { display: block; line-height: 0; }
+.top .logo img { height: 30px; width: auto; }
+.top nav { display: flex; gap: 20px; font-size: 12px; letter-spacing: .4px; }
+.top nav a { text-decoration: none; color: var(--ink); }
+.top nav a:hover { color: var(--sub); }
+.top nav.r { justify-content: flex-end; }
 
-/* 히어로 */
-.hero { padding-top: 56px; padding-bottom: 28px; }
-.eyebrow { font-size: 12px; color: var(--sub); letter-spacing: .04em; margin: 0 0 14px; }
-.title { font-size: 28px; line-height: 1.3; margin: 0; }
-.title-ko { display: block; font-size: 16px; color: var(--sub); margin-top: 6px; }
-.lead { font-size: 15px; color: var(--sub); margin: 20px 0 0; max-width: 560px; }
+/* 히어로: 가이드 페이지처럼 사진 한 장 + 제목 블록 */
+.hero-img { background: var(--hero); aspect-ratio: 1200 / 520; overflow: hidden; margin-top: 8px; }
+.hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.head { padding: 40px 0 32px; }
+.eyebrow { font-size: 12px; line-height: 16px; letter-spacing: .96px; color: var(--sub); margin: 0 0 14px; }
+.title { font-size: 28px; line-height: 32px; letter-spacing: -1px; color: var(--ink); margin: 0; }
+.title span { display: block; color: var(--sub); }
+.lead { font-size: 15px; line-height: 26px; color: #333; margin: 20px 0 0; max-width: 640px; }
 
-/* 상담 영역 */
-.demo-note { display: none; font-size: 13px; color: var(--sub); background: var(--wash); padding: 10px 14px; border-radius: 10px; margin: 0 0 16px; }
+/* 상담 패널 */
+.finder { background: var(--panel); padding: 48px 56px 0; }
+.finder-label { font-size: 12px; line-height: 16px; letter-spacing: .96px; color: var(--sub); margin: 0 0 20px; display: flex; justify-content: space-between; }
+.demo-note { display: none; font-size: 13px; line-height: 20px; color: var(--sub); border: 1px solid var(--hair); background: #fff; padding: 10px 14px; margin: 0 0 20px; }
 .demo .demo-note { display: block; }
 
-.log { display: flex; flex-direction: column; gap: 18px; padding: 8px 0 24px; min-height: 120px; }
-.msg { max-width: 88%; font-size: 15px; white-space: normal; word-break: keep-all; overflow-wrap: anywhere; }
+.log { display: flex; flex-direction: column; gap: 22px; padding: 4px 0 28px; min-height: 120px; }
+.msg { max-width: 760px; font-size: 15px; line-height: 26px; word-break: keep-all; overflow-wrap: anywhere; }
 .msg p { margin: 0 0 8px; }
 .msg p:last-child { margin-bottom: 0; }
 .msg ul { margin: 4px 0 8px; padding-left: 18px; }
 .msg li { margin: 2px 0; }
-.msg strong { color: var(--ink); box-shadow: inset 0 -0.42em 0 rgba(17,17,17,.07); }
-.msg.ai { align-self: flex-start; }
-.msg.ai .who { font-size: 12px; color: var(--faint); margin-bottom: 4px; letter-spacing: .03em; }
-.msg.me { align-self: flex-end; background: var(--wash); padding: 10px 16px; border-radius: 16px 16px 4px 16px; }
+.msg strong { color: var(--ink); box-shadow: inset 0 -0.42em 0 rgba(17,17,17,.08); }
+.msg.ai { align-self: flex-start; color: #333; }
+.msg.ai .who { font-size: 12px; line-height: 16px; letter-spacing: .96px; color: var(--sub); margin-bottom: 6px; }
+.msg.me { align-self: flex-end; max-width: 560px; background: #fff; border: 1px solid var(--hair); color: var(--ink); padding: 12px 18px; }
 .typing { display: inline-flex; gap: 5px; padding: 8px 0; }
-.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); animation: blink 1.2s infinite; }
+.typing i { width: 5px; height: 5px; background: var(--faint); animation: blink 1.2s infinite; }
 .typing i:nth-child(2) { animation-delay: .2s; } .typing i:nth-child(3) { animation-delay: .4s; }
 @keyframes blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
 
-/* 추천 카드 */
-.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 14px; }
-.pick { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; text-decoration: none; transition: border-color .2s; }
-a.pick:hover { border-color: rgba(17,17,17,.35); }
-.pick .b { font-size: 12px; color: var(--sub); letter-spacing: .02em; }
-.pick .m { font-size: 15px; }
-.pick .s { font-size: 13px; color: var(--sub); }
-.pick .r { font-size: 14px; color: var(--sub); line-height: 1.6; margin-top: 4px; }
-.pick .go { font-size: 12px; color: var(--faint); margin-top: auto; padding-top: 8px; }
+/* 추천 카드: 가이드 페이지 링크 카드처럼 사각, 1px 테두리, 오른쪽 화살표 */
+.picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 16px; }
+.pick { background: #fff; border: 1px solid var(--line); padding: 20px 20px 20px 24px; display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: var(--ink); transition: border-color .2s; }
+a.pick:hover { border-color: var(--ink); }
+.pick .b { font-size: 12px; line-height: 16px; letter-spacing: .96px; color: var(--sub); margin-bottom: 6px; }
+.pick .m { font-size: 15px; line-height: 22px; color: var(--ink); }
+.pick .s { font-size: 13px; line-height: 20px; color: var(--sub); }
+.pick .r { font-size: 14px; line-height: 22px; color: #333; margin-top: 8px; }
+.pick .go { font-size: 13px; color: var(--ink); margin-top: auto; padding-top: 12px; }
 
 /* 시작 질문 */
-.starters { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 20px; }
-.chip { font: inherit; font-size: 14px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer; transition: border-color .2s; }
-.chip:hover { border-color: rgba(17,17,17,.4); }
+.starters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+.chip { font: inherit; font-size: 14px; line-height: 22px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 0; padding: 9px 16px; cursor: pointer; transition: border-color .2s; }
+.chip:hover { border-color: var(--ink); }
 
 /* 입력창 */
-.dock { position: sticky; bottom: 0; background: linear-gradient(to top, #fff 78%, rgba(255,255,255,0)); padding: 16px 0 calc(16px + env(safe-area-inset-bottom)); }
-.composer { display: flex; align-items: flex-end; gap: 8px; border: 1px solid rgba(17,17,17,.2); border-radius: 18px; padding: 8px 8px 8px 16px; background: #fff; }
+.dock { position: sticky; bottom: 0; background: var(--panel); margin: 0 -56px; padding: 16px 56px calc(24px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hair); }
+.composer { display: flex; align-items: stretch; background: #fff; border: 1px solid var(--line); }
 .composer:focus-within { border-color: var(--ink); }
-.composer textarea { flex: 1; border: 0; outline: 0; resize: none; font: inherit; font-size: 15px; line-height: 1.6; padding: 6px 0; max-height: 140px; background: transparent; color: var(--ink); }
-.send { font: inherit; font-size: 14px; border: 0; border-radius: 12px; background: var(--ink); color: #fff; padding: 8px 16px; cursor: pointer; }
-.send:disabled { background: rgba(17,17,17,.2); cursor: default; }
-.dock-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; }
-.handoff { font: inherit; font-size: 14px; border: 1px solid var(--ink); background: #fff; color: var(--ink); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
-.handoff:disabled { border-color: var(--line); color: var(--faint); cursor: default; }
-.reset { font: inherit; font-size: 13px; background: none; border: 0; color: var(--sub); cursor: pointer; padding: 6px 0; }
-.counter { font-size: 12px; color: var(--faint); }
-.notice { font-size: 13px; color: var(--sub); margin: 8px 0 0; min-height: 0; }
+.composer textarea { flex: 1; border: 0; outline: 0; resize: none; font: inherit; font-size: 15px; line-height: 24px; padding: 14px 16px; max-height: 144px; background: transparent; color: var(--ink); border-radius: 0; }
+.composer textarea::placeholder { color: var(--faint); }
+.send { font: inherit; font-size: 14px; border: 0; border-left: 1px solid var(--line); border-radius: 0; background: var(--ink); color: #fff; padding: 0 22px; cursor: pointer; white-space: nowrap; }
+.send:disabled { background: #fff; color: var(--faint); cursor: default; }
+.dock-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.handoff { font: inherit; font-size: 14px; line-height: 14px; border: 1px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); padding: 13px 18px; cursor: pointer; }
+.handoff:hover { background: var(--ink); color: #fff; }
+.handoff:disabled { border-color: var(--line); color: var(--faint); background: transparent; cursor: default; }
+.reset { font: inherit; font-size: 13px; background: none; border: 0; color: var(--sub); cursor: pointer; padding: 6px 0 6px 14px; text-decoration: underline; text-underline-offset: 3px; }
+.counter { font-size: 12px; letter-spacing: .5px; color: var(--faint); }
+.notice { font-size: 13px; line-height: 20px; color: var(--ink); margin: 10px 0 0; }
 .notice:empty { display: none; }
 
-/* 쇼룸 안내 */
-.info { margin-top: 48px; padding-top: 40px; padding-bottom: 24px; }
-.info::before { content: ""; display: block; border-top: 1px solid var(--line); margin: -40px 0 40px; }
-.info h2 { font-size: 18px; margin: 0; }
-.info h2 span { display: block; font-size: 16px; color: var(--sub); margin-top: 2px; }
-.info dl { display: grid; grid-template-columns: 120px 1fr; gap: 10px 16px; margin: 24px 0 0; font-size: 14px; }
-.info dt { color: var(--sub); }
-.info dd { margin: 0; }
-.steps { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.steps li { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--sub); }
-.steps li span { display: block; font-size: 12px; color: var(--faint); margin-bottom: 6px; letter-spacing: .03em; }
-.steps li b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 2px; }
-footer.wrap { font-size: 12px; color: var(--faint); padding-top: 40px; padding-bottom: 48px; line-height: 1.7; }
+/* 하단: 진행 단계와 쇼룸 */
+.info { padding: 88px 0 24px; }
+.sec-head .title { font-size: 28px; }
+.steps { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.steps li { border: 1px solid var(--line); padding: 20px 20px 22px 24px; font-size: 14px; line-height: 22px; color: #333; }
+.steps li span { display: block; font-size: 12px; line-height: 16px; letter-spacing: .96px; color: var(--sub); margin-bottom: 10px; }
+.steps li b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+.place { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.place dl { margin: 0; background: var(--panel); padding: 28px 32px; display: grid; grid-template-columns: 120px 1fr; gap: 10px 16px; font-size: 14px; line-height: 22px; }
+.place dt { color: var(--sub); }
+.place dd { margin: 0; color: var(--ink); }
+.links { display: grid; gap: 12px; }
+.links a { border: 1px solid var(--line); padding: 20px 20px 20px 24px; text-decoration: none; color: var(--ink); display: flex; justify-content: space-between; align-items: center; font-size: 14px; line-height: 22px; transition: border-color .2s; }
+.links a:hover { border-color: var(--ink); }
+.links a small { display: block; color: var(--sub); font-size: 13px; }
+
+footer.site { background: #f2f2f2; margin-top: 88px; padding: 56px 0 64px; font-size: 12px; line-height: 20px; color: var(--sub); }
+footer.site p { margin: 0 0 6px; }
 
 /* 요약 창 (채널톡을 못 띄울 때) */
-dialog { border: 0; border-radius: 18px; padding: 24px; max-width: 520px; width: calc(100% - 32px); }
-dialog::backdrop { background: rgba(0,0,0,.35); }
-dialog h3 { font-size: 18px; margin: 0 0 8px; }
-dialog p { font-size: 14px; color: var(--sub); margin: 0 0 12px; }
-dialog pre { white-space: pre-wrap; font: inherit; font-size: 14px; background: var(--wash); border-radius: 12px; padding: 14px; margin: 0 0 16px; max-height: 50vh; overflow: auto; }
+dialog { border: 0; border-radius: 0; padding: 32px; max-width: 560px; width: calc(100% - 32px); }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog h3 { font-size: 22px; line-height: 28px; letter-spacing: -0.6px; color: var(--ink); margin: 0 0 8px; }
+dialog p { font-size: 14px; line-height: 22px; color: var(--sub); margin: 0 0 16px; }
+dialog pre { white-space: pre-wrap; font: inherit; font-size: 14px; line-height: 22px; background: var(--panel); padding: 18px 20px; margin: 0 0 20px; max-height: 50vh; overflow: auto; color: var(--ink); }
 dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+dialog .send { padding: 13px 22px; border: 1px solid var(--ink); }
 
-@media (max-width: 640px) {
-  .wrap { padding: 0 18px; }
-  .hero { padding-top: 40px; padding-bottom: 20px; }
-  .title { font-size: 24px; }
-  .msg { max-width: 94%; }
-  .info dl { grid-template-columns: 112px 1fr; gap: 10px 12px; }
+@media (max-width: 768px) {
+  .wrap { padding-left: 18px; padding-right: 18px; }
+  .top .bar { padding: 0 18px; height: 56px; }
+  .top .logo img { height: 24px; }
+  .top nav a:not(.keep) { display: none; }
+  .hero-img { aspect-ratio: 4 / 3; margin-top: 0; }
+  .head { padding: 32px 0 24px; }
+  .title, .sec-head .title { font-size: 24px; line-height: 30px; }
+  .finder { padding: 32px 20px 0; margin: 0 -18px; }
+  .dock { margin: 0 -20px; padding: 14px 20px calc(18px + env(safe-area-inset-bottom)); }
+  .msg.me { max-width: 92%; }
   .steps { grid-template-columns: 1fr; }
-  .top nav a:not(:last-child) { display: none; }
+  .place { grid-template-columns: 1fr; }
+  .place dl { grid-template-columns: 96px 1fr; padding: 24px 20px; }
+  .info { padding-top: 64px; }
 }
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="wrap">
-    <a class="brand" href="https://rubiworkshop.com/">Rubi Workshop</a>
+  <div class="bar">
     <nav aria-label="루비워크샵 바로가기">
       <a href="https://rubiworkshop.com/models">Models</a>
+      <a href="https://rubiworkshop.com/rubi-guide">Guide</a>
+    </nav>
+    <a class="logo" href="https://rubiworkshop.com/" aria-label="루비워크샵 홈">
+      <img src="https://cdn.imweb.me/upload/S20200311e09de2572a4ce/959bc844db599.png" alt="rubi workshop 로고" width="172" height="30">
+    </a>
+    <nav class="r" aria-label="쇼룸">
       <a href="https://rubiworkshop.com/showroom">Showroom</a>
-      <a href="https://rubiworkshop.com/">Home</a>
+      <a class="keep" href="https://rubiworkshop.com/">Home</a>
     </nav>
   </div>
 </header>
 
-<main>
-  <section class="hero wrap">
-    <p class="eyebrow">AI Consulting</p>
-    <h1 class="title">Find Your Ride<span class="title-ko">AI 자전거 상담</span></h1>
-    <p class="lead">어디를, 어떻게 달리고 싶은지 편하게 이야기해 주세요. 루비워크샵이 다루는 자전거의 모델과 사이즈, 슈즈 사이즈, 부품 스펙과 규격까지 안내하고, 이어서 상담원과 채널톡으로 바로 연결해 드립니다.</p>
+<main class="wrap">
+  <div class="hero-img">
+    <img src="https://cdn.imweb.me/thumbnail/20260922/a4cfab47ae686.jpg" alt="루비워크샵 쇼룸 앞에 세워 둔 몰튼 미니벨로" width="1000" height="677">
+  </div>
+
+  <section class="head">
+    <p class="eyebrow">Rubi Workshop · AI Consulting</p>
+    <h1 class="title">AI 자전거 상담<span>타고 싶은 길을 이야기해 주세요</span></h1>
+    <p class="lead">루비워크샵이 다루는 자전거의 모델과 사이즈, 바스티온 맞춤 제작, 슈즈 사이즈, 부품 스펙과 규격까지 안내해 드립니다. 상담이 정리되면 채널톡으로 상담원과 바로 이어집니다.</p>
   </section>
 
-  <section class="wrap" id="consult" aria-label="AI 자전거 상담">
+  <section class="finder" id="consult" aria-label="AI 자전거 상담">
+    <p class="finder-label"><span>Consulting</span><span class="counter" id="counter"></span></p>
     <p class="demo-note" id="demoNote">미리보기 모드입니다. 실제 AI 대신 예시 답변이 나옵니다.</p>
 
     <noscript>
@@ -237,40 +274,50 @@ dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wra
 
     <div class="dock">
       <form class="composer" id="form" autocomplete="off">
-        <label for="input" class="sr-only" style="position:absolute;left:-9999px">상담 내용 입력</label>
+        <label for="input" style="position:absolute;left:-9999px">상담 내용 입력</label>
         <textarea id="input" rows="1" maxlength="800" placeholder="예: 주말에 한강을 달리고 가끔 지하철에 싣고 싶어요"></textarea>
         <button class="send" id="send" type="submit" disabled>보내기</button>
       </form>
       <p class="notice" id="notice"></p>
       <div class="dock-row">
-        <button class="handoff" id="handoff" type="button" disabled>채널톡으로 상담 이어가기</button>
-        <span>
-          <span class="counter" id="counter"></span>
-          <button class="reset" id="reset" type="button" hidden>새 상담</button>
-        </span>
+        <button class="handoff" id="handoff" type="button" disabled>채널톡으로 상담 이어가기 →</button>
+        <button class="reset" id="reset" type="button" hidden>새 상담</button>
       </div>
     </div>
   </section>
 
-  <section class="info wrap" aria-labelledby="infoTitle">
-    <h2 id="infoTitle">Showroom<span>쇼룸 방문 상담</span></h2>
+  <section class="info" aria-labelledby="infoTitle">
+    <div class="sec-head">
+      <p class="eyebrow">How It Works</p>
+      <h2 class="title" id="infoTitle">상담에서 출고까지<span>AI 상담, 상담원, 그리고 쇼룸</span></h2>
+    </div>
     <ol class="steps">
       <li><span>Step 1</span><b>AI 상담</b>자전거와 슈즈의 사이즈, 부품 규격까지 방향을 좁힙니다.</li>
       <li><span>Step 2</span><b>상담원 연결</b>요약이 채널톡으로 넘어가 상담원이 이어서 안내합니다.</li>
       <li><span>Step 3</span><b>쇼룸 피팅</b>반포 쇼룸에서 직접 타 보고 신어 보며 사이즈와 빌드를 확정합니다.</li>
     </ol>
-    <dl>
-      <dt>주소</dt><dd>서울시 서초구 신반포로 320 루비빌딩</dd>
-      <dt>운영시간</dt><dd>월~금 12:00~19:00, 토요일 10:00~15:30</dd>
-      <dt>커스텀 빌드 문의</dt><dd><a href="tel:15515320">1551-5320</a></dd>
-      <dt>Instagram</dt><dd><a href="https://www.instagram.com/rubi.workshop" rel="noopener">@rubi.workshop</a></dd>
-    </dl>
+    <div class="place">
+      <dl>
+        <dt>주소</dt><dd>서울시 서초구 신반포로 320 루비빌딩</dd>
+        <dt>운영시간</dt><dd>월~금 12:00~19:00<br>토요일 10:00~15:30</dd>
+        <dt>커스텀 빌드</dt><dd><a href="tel:15515320">1551-5320</a></dd>
+        <dt>Instagram</dt><dd><a href="https://www.instagram.com/rubi.workshop" rel="noopener">@rubi.workshop</a></dd>
+      </dl>
+      <div class="links">
+        <a href="https://rubiworkshop.com/rubi-guide"><span>루비 가이드<small>라이딩 스타일로 제품 고르기</small></span><span aria-hidden="true">→</span></a>
+        <a href="https://rubiworkshop.com/models"><span>모델 라인업<small>루비워크샵 자전거 모아 보기</small></span><span aria-hidden="true">→</span></a>
+        <a href="https://rubiworkshop.com/showroom"><span>쇼룸 방문<small>위치와 운영시간 안내</small></span><span aria-hidden="true">→</span></a>
+      </div>
+    </div>
   </section>
 </main>
 
-<footer class="wrap">
-  AI 상담은 참고용 안내이며 가격, 재고, 사이즈와 빌드, 부품 호환은 상담원 확인과 쇼룸 피팅으로 확정됩니다. 상담 품질 개선과 상담원 연결을 위해 대화 내용이 저장되니 전화번호, 주소 같은 개인정보는 입력하지 말아 주세요.<br>
-  © Rubi Workshop. Ride Tastefully.
+<footer class="site">
+  <div class="wrap">
+    <p>AI 상담은 참고용 안내이며 가격, 재고, 사이즈와 빌드, 부품 호환은 상담원 확인과 쇼룸 피팅으로 확정됩니다.</p>
+    <p>상담 품질 개선과 상담원 연결을 위해 대화 내용이 저장되니 전화번호, 주소 같은 개인정보는 입력하지 말아 주세요.</p>
+    <p>© Rubi Workshop. Ride Tastefully.</p>
+  </div>
 </footer>
 
 <dialog id="sheet">
@@ -356,7 +403,7 @@ var CONFIG = {
         '<span class="b"></span><span class="m"></span>' +
         (p.size ? '<span class="s"></span>' : "") +
         (p.reason ? '<span class="r"></span>' : "") +
-        (p.url ? '<span class="go">자세히 보기</span>' : "");
+        (p.url ? '<span class="go">자세히 보기 →</span>' : "");
       card.querySelector(".b").textContent = (p.kind ? p.kind + " · " : "") + (p.brand || "");
       card.querySelector(".m").textContent = p.model || "";
       if (p.size) card.querySelector(".s").textContent = p.size;
@@ -409,7 +456,14 @@ var CONFIG = {
   }
 
   function setNotice(t) { notice.textContent = t || ""; }
-  function scrollEnd() { var d = document.querySelector(".dock"); (d || log).scrollIntoView({ block: "end", behavior: "smooth" }); }
+  // 마지막 메시지가 하단 입력창에 가리지 않도록 그만큼 띄워서 내립니다
+  function scrollEnd() {
+    var last = log.lastElementChild; if (!last) return;
+    var dock = document.querySelector(".dock");
+    var gap = (dock ? dock.getBoundingClientRect().height : 0) + 24;
+    var y = window.scrollY + last.getBoundingClientRect().bottom - (window.innerHeight - gap);
+    if (y > window.scrollY) window.scrollTo({ top: y, behavior: "smooth" });
+  }
 
   /* ───────── 보내기 ───────── */
   function send(text) {
@@ -466,7 +520,7 @@ var CONFIG = {
     if (msgs.length && msgs[msgs.length - 1].role === "user") msgs.pop();
 
     request("summary", { messages: msgs }).then(function (res) {
-      busy = false; handoffBtn.textContent = "채널톡으로 상담 이어가기"; syncUi();
+      busy = false; handoffBtn.textContent = "채널톡으로 상담 이어가기 →"; syncUi();
       var summary = res && res.ok ? res.summary : fallbackSummary();
       openChannel(summary);
     });
