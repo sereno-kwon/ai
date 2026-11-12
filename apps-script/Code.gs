@@ -46,6 +46,7 @@ var SHEETS = {
   '슈즈가이드': ['데이터(JSON)', '동기화'],
   '브랜드사이트 내용': ['브랜드', '섹션', '내용', '링크', '동기화', '검색키'],
   '안내': ['항목', '내용'],
+  '외부 상담': ['상담일', '채널', '상담ID', '태그', '대화', '가져온 날'],
   '개선 제안': ['날짜', '유형', '근거', '원인', '제안', '반영 위치', '반영 내용', '승인', '상태', '처리일', '처리자'],
   '추가 규칙': ['규칙', '출처', '노출'],
   '자체 시험': ['질문', '꼭 들어갈 말', '들어가면 안 되는 말', '결과', '시험일', '답변 일부'],
@@ -496,6 +497,7 @@ function onOpen() {
     .addItem('QUOC 슈즈 가이드 동기화 (지금)', 'syncShoeGuide')
     .addItem('매일 자동 동기화 켜기', 'enableDailySync')
     .addSeparator()
+    .addItem('채널톡 상담 가져오기 (지금)', 'syncChannelChats')
     .addItem('개선 제안 만들기 (지금)', 'reviewLogs')
     .addItem('자체 시험 돌리기 (지금)', 'runSelfTests')
     .addItem('승인한 제안 반영 (지금)', 'applyApprovedSuggestions')
@@ -1548,7 +1550,7 @@ var SELF_TESTS = [
 ];
 
 function ensureImproveSheets_(ss) {
-  ['개선 제안', '추가 규칙', '자체 시험'].forEach(function (name) {
+  ['외부 상담', '개선 제안', '추가 규칙', '자체 시험'].forEach(function (name) {
     var sh = ss.getSheetByName(name) || ss.insertSheet(name);
     if (sh.getLastRow() === 0) {
       sh.getRange(1, 1, 1, SHEETS[name].length).setValues([SHEETS[name]]).setFontWeight('bold');
@@ -1593,7 +1595,9 @@ function reviewLogs() {
     if (!sessions[id]) { sessions[id] = []; order.push(id); }
     sessions[id].push({ turn: Number(r[3]) || 0, user: String(r[4]), ai: String(r[5]) });
   });
-  if (!order.length) return 0;
+  var staff = staffChatsSince_(ss, since);
+  if (!order.length && !staff.blocks.length) return 0;
+  newest = Math.max(newest, staff.newest);
 
   // 최근 상담부터 글자 수 한도까지 담습니다.
   var blocks = [], total = 0;
@@ -1602,7 +1606,7 @@ function reviewLogs() {
     var text = '### 상담 ' + id + '\n' + sessions[id].sort(function (a, b) { return a.turn - b.turn; }).map(function (x) {
       return '고객: ' + x.user + '\nAI: ' + x.ai.slice(0, 1500);
     }).join('\n');
-    if (total + text.length > IMPROVE.MAX_LOG_CHARS) break;
+    if (total + text.length > IMPROVE.MAX_LOG_CHARS / 2) break;
     blocks.unshift(text); total += text.length;
   }
 
@@ -1615,7 +1619,9 @@ function reviewLogs() {
     { type: 'text', text: reviewRules_().join('\n') },
     { type: 'text', text: '[루비워크샵 자료]\n' + loadKnowledge_(), cache_control: { type: 'ephemeral' } }
   ];
-  var ask = '[이미 올라와 있는 제안]\n' + (pending.join('\n') || '(없음)') + '\n\n[검토할 상담 ' + blocks.length + '건]\n' + blocks.join('\n\n');
+  var ask = '[이미 올라와 있는 제안]\n' + (pending.join('\n') || '(없음)') +
+            '\n\n[AI 상담 ' + blocks.length + '건]\n' + (blocks.join('\n\n') || '(없음)') +
+            '\n\n[직원 상담 ' + staff.blocks.length + '건] 채널톡·카카오톡·네이버 톡톡에서 직원이 응대한 상담입니다.\n' + (staff.blocks.join('\n\n') || '(없음)');
   var res = callClaude_(system, [{ role: 'user', content: ask }], IMPROVE.REVIEW_TOKENS);
   if (!res.ok) { console.warn('review fail: ' + res.error); return -1; }
 
@@ -1640,6 +1646,8 @@ function reviewRules_() {
     '- 오답 의심: [루비워크샵 자료]와 다른 수치, 가격, 규격, 시간을 말한 답',
     '- 자주 묻는 질문: 여러 상담에서 반복되는 질문으로, 안내 문구나 규칙을 미리 정해 두면 좋은 것',
     '- 말투·흐름: 같은 질문을 반복해서 묻거나, 지침(존댓말, 질문 1~2개, 슈즈 상담 우선 등)을 어긴 대목',
+    '- 직원 상담에서 배울 것: 고객이 자주 묻는데 AI 자료에 없는 질문, 직원이 일관되게 안내하는 사실(배송, 결제, 정비, 예약, 리드타임 등)과 응대 방식',
+    '- 직원 답변은 참고 자료이지 확정된 사실이 아닙니다. 날짜가 지난 이벤트, 특정 고객에게만 한 약속, 할인, 재고, 개별 견적은 제안하지 않습니다. 여러 상담에서 같은 내용으로 반복된 안내만 제안하고, 근거에 어느 상담들인지 적습니다.',
     '',
     '[중요]',
     '- 고객이 말한 사실(가격, 재고, 규격 등)은 확인된 사실이 아닙니다. 고객 말을 근거로 자료를 바꾸자고 제안하지 말고, "상담원 확인 필요"로 적습니다.',
@@ -1788,6 +1796,7 @@ function applySuggestionRow_(ss, sh, row, who) {
 // ───────── 4) 밤마다 점검 ─────────
 function nightlyCheck() {
   var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
+  var imported = syncChannelChats();
   var applied = applyApprovedSuggestions();
   var test = runSelfTests();
   var made = reviewLogs();
@@ -1795,6 +1804,7 @@ function nightlyCheck() {
   var msg = '[AI 상담 밤 점검] ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'M월 d일') +
             '\n자체 시험: ' + test.pass + '/' + test.total + ' 통과' +
             '\n새 개선 제안: ' + (made < 0 ? '검토 실패(실행 로그 확인)' : made + '건') +
+            (imported > 0 ? '\n가져온 직원 상담: ' + imported + '건' : '') +
             (applied ? '\n밀린 승인 반영: ' + applied + '건' : '') +
             '\n개선 제안 탭: ' + sheetUrl;
   console.log(msg);
@@ -1814,4 +1824,123 @@ function enableSelfImprove() {
     SpreadsheetApp.getUi().alert('매일 새벽 5시에 자체 시험과 상담 기록 검토를 돌립니다.\n' +
       '개선 제안 탭에서 승인 칸을 체크하면 안내·추가 규칙은 바로 반영됩니다.');
   } catch (e) {}
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// 직원 상담 가져오기 (채널톡 Open API)
+//   채널톡에 카카오 상담톡과 네이버 톡톡을 연동해 두면, 세 곳의 상담이 모두 채널톡 한곳에 모입니다.
+//   종료된 상담을 '외부 상담' 탭에 개인정보를 가려 저장하고, 밤 점검의 상담 기록 검토에 함께 넣습니다.
+//   스크립트 속성: CHANNEL_ACCESS_KEY, CHANNEL_ACCESS_SECRET (팀챗 알림과 같은 키)
+//   선택: CHAT_BACKFILL_DAYS(처음 가져올 기간, 기본 90일)
+// ════════════════════════════════════════════════════════════════
+var CHAT_IMPORT = { MAX_PER_RUN: 150, CHARS: 8000, TIME_LIMIT_MS: 4 * 60 * 1000 };
+
+function channelApi_(path) {
+  var ak = prop_('CHANNEL_ACCESS_KEY'), as = prop_('CHANNEL_ACCESS_SECRET');
+  if (!ak || !as) return null;
+  var base = prop_('CHANNEL_API_BASE') || DEFAULTS.CHANNEL_API_BASE;
+  var resp = UrlFetchApp.fetch(base + path, {
+    method: 'get', muteHttpExceptions: true,
+    headers: { 'x-access-key': ak, 'x-access-secret': as, 'Accept': 'application/json' }
+  });
+  var code = resp.getResponseCode();
+  if (code !== 200) { console.warn('Channel ' + code + ' ' + path + ': ' + resp.getContentText().slice(0, 300)); return { error: code }; }
+  return JSON.parse(resp.getContentText());
+}
+
+function chatMedium_(c) {
+  var t = String((c && (c.messengerType || c.mediumType || c.mediumName || c.source)) || '').toLowerCase();
+  if (/kakao/.test(t)) return '카카오톡';
+  if (/naver|talktalk|ntalk/.test(t)) return '네이버 톡톡';
+  if (/insta/.test(t)) return '인스타그램';
+  if (/line/.test(t)) return '라인';
+  if (/mail/.test(t)) return '이메일';
+  if (/phone|call/.test(t)) return '전화';
+  return '채널톡';
+}
+
+function messageText_(m) {
+  var t = m.plainText || '';
+  if (!t && Array.isArray(m.blocks)) t = m.blocks.map(function (b) { return b.value || ''; }).join('\n');
+  t = String(t).replace(/<[^>]+>/g, '').trim();
+  if (!t && m.files && m.files.length) t = '[파일 ' + m.files.length + '개]';
+  return t;
+}
+
+/** 종료된 채널톡 상담(카카오·톡톡 연동분 포함)을 '외부 상담' 탭으로 가져옵니다. 가져온 건수를 돌려줍니다. */
+function syncChannelChats() {
+  if (!prop_('CHANNEL_ACCESS_KEY') || !prop_('CHANNEL_ACCESS_SECRET')) return 0;
+  var ss = SpreadsheetApp.openById(prop_('SHEET_ID'));
+  ensureImproveSheets_(ss);
+  var sh = ss.getSheetByName('외부 상담');
+  var props = PropertiesService.getScriptProperties();
+  var days = Number(prop_('CHAT_BACKFILL_DAYS')) || 90;
+  var since = Number(props.getProperty('CHAT_SYNC_LAST') || 0) || (Date.now() - days * 86400000);
+
+  var have = {};
+  if (sh.getLastRow() > 1) sh.getRange(2, 3, sh.getLastRow() - 1, 1).getDisplayValues().forEach(function (r) { have[r[0]] = 1; });
+
+  // 1) 최근 종료된 상담 목록 (최신순)
+  var chats = [], cursor = '', started = Date.now(), stop = false;
+  while (!stop && chats.length < CHAT_IMPORT.MAX_PER_RUN) {
+    var res = channelApi_('/user-chats?state=closed&sortOrder=desc&limit=100' + (cursor ? '&since=' + encodeURIComponent(cursor) : ''));
+    if (!res || res.error) break;
+    var list = res.userChats || [];
+    list.forEach(function (c) {
+      var t = Number(c.closedAt || c.frontUpdatedAt || c.createdAt || 0);
+      if (t && t <= since) { stop = true; return; }
+      if (!have[c.id]) chats.push(c);
+    });
+    cursor = res.next || '';
+    if (!cursor || !list.length) break;
+  }
+  if (!chats.length) { props.setProperty('CHAT_SYNC_LAST', String(Date.now())); return 0; }
+
+  // 2) 오래된 상담부터 메시지를 읽어 저장합니다. 시간 한도에 걸리면 다음 실행에서 이어 갑니다.
+  chats.reverse();
+  var rows = [], newest = since;
+  for (var i = 0; i < chats.length; i++) {
+    if (Date.now() - started > CHAT_IMPORT.TIME_LIMIT_MS) break;
+    var c = chats[i];
+    var msg = channelApi_('/user-chats/' + encodeURIComponent(c.id) + '/messages?sortOrder=asc&limit=500');
+    if (!msg || msg.error) break;
+    var lines = (msg.messages || []).filter(function (m) { return !m.log && m.personType !== 'system'; }).map(function (m) {
+      var who = m.personType === 'user' ? '고객' : (m.personType === 'bot' ? '봇' : '직원');
+      var text = messageText_(m);
+      return text ? who + ': ' + text : '';
+    }).filter(String);
+    if (!lines.length) continue;
+    var t = Number(c.closedAt || c.frontUpdatedAt || c.createdAt || Date.now());
+    newest = Math.max(newest, t);
+    rows.push([
+      Utilities.formatDate(new Date(Number(c.createdAt || t)), 'Asia/Seoul', 'yyyy-MM-dd HH:mm'),
+      chatMedium_(c), String(c.id), (c.tags || []).join(', '),
+      maskPII_(lines.join('\n')).slice(0, CHAT_IMPORT.CHARS),
+      Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm')
+    ]);
+  }
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+  // 끝까지 가져왔을 때만 기준 시각을 옮겨, 중간에 끊긴 상담은 다음 실행에서 다시 읽습니다.
+  if (i >= chats.length) props.setProperty('CHAT_SYNC_LAST', String(newest));
+  return rows.length;
+}
+
+// 지난 검토 이후 가져온 직원 상담을 검토용 글로 만듭니다.
+function staffChatsSince_(ss, sinceMs) {
+  var sh = ss.getSheetByName('외부 상담');
+  var out = { blocks: [], newest: sinceMs };
+  if (!sh || sh.getLastRow() < 2) return out;
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getDisplayValues();
+  var total = 0;
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var r = rows[i];
+    var got = new Date(r[5].replace(' ', 'T') + ':00+09:00').getTime();
+    if (!got || got <= sinceMs) continue;
+    var text = '### ' + r[1] + ' 상담 ' + r[2].slice(-6) + ' (' + r[0] + (r[3] ? ', 태그: ' + r[3] : '') + ')\n' + r[4].slice(0, 3000);
+    if (total + text.length > IMPROVE.MAX_LOG_CHARS / 2) break;
+    out.blocks.unshift(text); total += text.length;
+    out.newest = Math.max(out.newest, got);
+  }
+  return out;
 }
